@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppLogic } from './hooks/useAppLogic';
 import { SourceSession } from './types';
-import { Monitor } from 'lucide-react';
+import { Monitor, Siren, Users, Clock } from 'lucide-react';
 
 // Components
 import { ModalContainer } from './components/ModalContainer';
@@ -20,6 +20,7 @@ export default function App() {
   const [sourceSession, setSourceSession] = useState<SourceSession | null>(null);
   const [showDatabaseFix, setShowDatabaseFix] = useState(false);
   const [showStrategicHub, setShowStrategicHub] = useState(true);
+  const [sourceTimeLeft, setSourceTimeLeft] = useState<string | null>(null);
 
   // --- 1. CORE LOGIC HOOKS ---
   const logic = useAppLogic(!!sourceSession);
@@ -44,6 +45,30 @@ export default function App() {
     activeCampaign, handleStartCampaign, handleUpdateCampaign
   } = logic;
 
+  const isOpsManager = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(userRole || '');
+
+  // --- SOURCE SESSION AUTO-EXPIRY ---
+  useEffect(() => {
+    if (!sourceSession) {
+      setSourceTimeLeft(null);
+      return;
+    }
+    const tick = () => {
+      const remaining = sourceSession.expiresAt - Date.now();
+      if (remaining <= 0) {
+        setSourceSession(null);
+        setSourceTimeLeft(null);
+        return;
+      }
+      const mins = Math.floor(remaining / 60000);
+      const secs = Math.floor((remaining % 60000) / 1000);
+      setSourceTimeLeft(`${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`);
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [sourceSession]);
+
   if (authLoading && !sourceSession) {
     return <LoadingScreen />;
   }
@@ -62,8 +87,6 @@ export default function App() {
         />
       );
   }
-
-  const isOpsManager = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(userRole || '');
 
   return (
     <div className="flex h-screen w-full bg-[#020617] text-white overflow-hidden select-none" dir="rtl">
@@ -100,6 +123,39 @@ export default function App() {
       {/* 2. Main Content Area */}
       <div className="flex-1 relative h-full overflow-hidden">
         
+        {/* Active Campaign Banner */}
+        {activeCampaign && (
+          <div className="absolute top-0 left-0 right-0 z-[999] pointer-events-none" dir="rtl">
+            <div className="mx-auto max-w-2xl mt-2 px-4">
+              <div className="bg-yellow-900/80 backdrop-blur-xl border border-yellow-600/50 rounded-xl px-4 py-2 flex items-center justify-between pointer-events-auto shadow-lg shadow-yellow-900/30 animate-fade-up">
+                <div className="flex items-center gap-3">
+                  <Siren size={16} className="text-yellow-400 animate-pulse" />
+                  <span className="text-yellow-200 text-xs font-bold">{activeCampaign.name}</span>
+                </div>
+                <div className="flex items-center gap-4 text-[10px] font-mono">
+                  <span className="text-yellow-300 flex items-center gap-1">
+                    <Users size={10} /> {activeCampaign.participantIds.size} عنصر
+                  </span>
+                  <span className="text-yellow-400/70 flex items-center gap-1">
+                    <Clock size={10} /> {Math.round((Date.now() - activeCampaign.startTime) / 60000)} د
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Source Session Timer */}
+        {sourceSession && sourceTimeLeft && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-[999]" dir="rtl">
+            <div className="bg-blue-900/80 backdrop-blur-xl border border-blue-500/30 rounded-full px-4 py-1.5 flex items-center gap-3 shadow-lg animate-fade-up">
+              <Clock size={12} className="text-blue-400" />
+              <span className="text-blue-200 text-[11px] font-bold">جلسة مصدر مؤقتة</span>
+              <span className="text-blue-400 text-xs font-mono font-black">{sourceTimeLeft}</span>
+            </div>
+          </div>
+        )}
+
         {/* Dubai Strategic Dashboard Layer */}
         {isOpsManager && (
             <StrategicDashboard 

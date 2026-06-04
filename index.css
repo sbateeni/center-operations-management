@@ -10,7 +10,7 @@ html, body, #root {
   overflow: hidden;
   background-color: #020617;
   color: white;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Tajawal', ui-sans-serif, system-ui, sans-serif;
   direction: rtl;
 }
 
@@ -26,6 +26,7 @@ html, body, #root {
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Scanline Effect for Dashboards */
@@ -63,6 +64,8 @@ html, body, #root {
   border: none !important;
 }
 
+/* ===== ANIMATIONS ===== */
+
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -77,6 +80,71 @@ html, body, #root {
 }
 .animate-pulse-glow {
   animation: pulse-glow 2s infinite ease-in-out;
+}
+
+/* Fade + Slide Up Animation */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeSlideUp 0.6s ease-out forwards;
+}
+
+/* Border Glow Animation */
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 0 10px rgba(59, 130, 246, 0.1); }
+  50% { border-color: rgba(59, 130, 246, 0.6); box-shadow: 0 0 25px rgba(59, 130, 246, 0.2); }
+}
+.animate-border-glow {
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+/* Breathing Background Glow */
+@keyframes breatheGlow {
+  0%, 100% { opacity: 0.08; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.15; transform: translate(-50%, -50%) scale(1.1); }
+}
+.animate-breathe {
+  animation: breatheGlow 4s ease-in-out infinite;
+}
+
+/* Marquee / Auto-scroll for Operations Log */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Flash highlight for new log entries */
+@keyframes flashHighlight {
+  0% { background-color: rgba(59, 130, 246, 0.3); }
+  100% { background-color: transparent; }
+}
+.animate-flash {
+  animation: flashHighlight 2s ease-out forwards;
+}
+
+/* Progress bar shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, #3b82f6 25%, #60a5fa 50%, #3b82f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* SOS countdown pulse */
+@keyframes countdownPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.animate-countdown {
+  animation: countdownPulse 1s ease-in-out infinite;
 }
 
 /* Custom Scrollbar for Tactical Feel */

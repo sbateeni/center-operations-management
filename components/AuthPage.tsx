@@ -13,7 +13,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontFamily: 'system-ui, -apple-system, sans-serif',
+    fontFamily: "'Tajawal', system-ui, -apple-system, sans-serif",
     direction: 'rtl',
     position: 'relative',
     overflow: 'hidden',
@@ -22,10 +22,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     position: 'absolute',
     width: '600px',
     height: '600px',
-    background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(15,23,42,0) 70%)',
+    background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, rgba(15,23,42,0) 70%)',
     top: '50%',
     left: '50%',
-    transform: 'translate(-50%, -50%)',
     pointerEvents: 'none',
   },
   card: {
@@ -34,13 +33,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '40px',
     width: '100%',
     maxWidth: '420px',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 60px rgba(59,130,246,0.05)',
     border: '1px solid rgba(255,255,255,0.05)',
     position: 'relative',
     zIndex: 10,
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px'
+    gap: '20px',
+    animation: 'fadeSlideUp 0.6s ease-out forwards'
   },
   logoBox: {
     width: '70px',
@@ -68,7 +68,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: 'white',
     outline: 'none',
     boxSizing: 'border-box',
-    transition: 'border-color 0.2s',
+    transition: 'border-color 0.3s, box-shadow 0.3s',
   },
   button: {
     width: '100%',
@@ -155,7 +155,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.backgroundGlow}></div>
+      <div style={styles.backgroundGlow} className="animate-breathe"></div>
+      {/* Secondary glow */}
+      <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)', top: '30%', left: '30%', pointerEvents: 'none' }} className="animate-breathe" />
       <div style={styles.card}>
         <div style={styles.logoBox}>
           <ShieldCheck size={35} color="white" />
@@ -235,7 +237,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
             </div>
           )}
 
-          <button type="submit" disabled={loading} style={{ ...styles.button, backgroundColor: '#2563eb' }}>
+          <button 
+            type="submit" 
+            disabled={loading} 
+            style={{ ...styles.button, backgroundColor: '#2563eb' }}
+            onMouseEnter={e => { if (!loading) { (e.target as HTMLElement).style.transform = 'scale(1.02)'; (e.target as HTMLElement).style.boxShadow = '0 0 30px rgba(37,99,235,0.4)'; } }}
+            onMouseLeave={e => { (e.target as HTMLElement).style.transform = 'scale(1)'; (e.target as HTMLElement).style.boxShadow = 'none'; }}
+          >
             {loading ? <Loader2 className="animate-spin" /> : 'دخول النظام'}
           </button>
         </form>

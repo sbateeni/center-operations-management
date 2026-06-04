@@ -189,7 +189,7 @@ export function useAppLogic(isSourceMode: boolean = false) {
     dispatchTargetLocation, setDispatchTargetLocation, handleOpenDispatchModal: (n: MapNote) => setDispatchTargetLocation(n), handleSendDispatchOrder,
     showModal, tempCoords, userNoteInput, setUserNoteInput, isEditingNote,
     handleMapClick, handleEditNote, handleSaveNote, closeModal,
-    setTargetUserFilter: () => {},
+    setTargetUserFilter: (_filter: {id: string, name: string} | null) => {},
     activeCampaign, handleStartCampaign: (n: string, p: Set<string>, t: Set<string>, c: Set<string>) => {
         db.createCampaign({ name: n, participantIds: p, targetIds: t, commanderIds: c, startTime: Date.now() });
     }, handleEndCampaign: () => {
