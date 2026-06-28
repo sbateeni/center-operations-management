@@ -30,6 +30,7 @@ export function useMapUsers(
       // Add/Update
       otherUsers.forEach(user => {
           if (!canSeeOthers) return;
+          if (user.lat == null || user.lng == null) return;
 
           const html = createUserIconHtml(user);
           const icon = window.L.divIcon({
@@ -60,5 +61,5 @@ export function useMapUsers(
            });
       }
 
-  }, [otherUsers, canSeeOthers, onUserClick, mapInstanceRef.current]);
+  }, [otherUsers, canSeeOthers, onUserClick]);
 }

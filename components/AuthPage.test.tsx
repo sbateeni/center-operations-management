@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { AuthPage } from './AuthPage';
+import { AuthPage } from '../pages/AuthPage';
 
 const signInMock = vi.fn();
 

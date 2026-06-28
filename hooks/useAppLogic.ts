@@ -6,12 +6,12 @@ import { searchPlace } from '../services/geocoding';
 
 // Hooks
 import { useAuth } from './useAuth';
-import { useNotes } from './useNotes';
+import { useNotes } from '../features/notes/hooks/useNotes';
 import { useGeolocation } from './useGeolocation';
-import { usePresence } from './usePresence';
+import { usePresence } from '../features/presence/hooks/usePresence';
 import { useNavigation } from './useNavigation';
 import { useNoteForm } from './useNoteForm';
-import { useAssignments } from './useAssignments';
+import { useAssignments } from '../features/dispatch/hooks/useAssignments';
 
 export function useAppLogic(isSourceMode: boolean = false) {
   const { 

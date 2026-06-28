@@ -5,16 +5,16 @@ import { SourceSession } from './types';
 import { Monitor, Siren, Users, Clock } from 'lucide-react';
 
 // Components
-import { ModalContainer } from './components/ModalContainer';
-import { Sidebar } from './components/Sidebar';
-import { MapControls } from './components/MapControls';
-import { LeafletMap } from './components/LeafletMap';
-import { DatabaseSetupModal } from './components/DatabaseSetupModal';
-import { AuthPage } from './components/AuthPage';
-import { PendingApproval } from './components/PendingApproval';
-import { LoadingScreen } from './components/layout/LoadingScreen';
-import { TacticalOverlay } from './components/layout/TacticalOverlay';
-import { StrategicDashboard } from './components/StrategicDashboard';
+import { ModalContainer } from './components/ui/ModalContainer';
+import { Sidebar } from './components/layout/Sidebar';
+import { MapControls } from './features/map/components/MapControls';
+import { LeafletMap } from './features/map/components/LeafletMap';
+import { DatabaseSetupModal } from './components/ui/DatabaseSetupModal';
+import { AuthPage } from './pages/AuthPage';
+import { PendingApproval } from './pages/PendingApproval';
+import { LoadingScreen } from './components/ui/LoadingScreen';
+import { TacticalOverlay } from './components/ui/TacticalOverlay';
+import { StrategicDashboard } from './components/ui/StrategicDashboard';
 
 export default function App() {
   const [sourceSession, setSourceSession] = useState<SourceSession | null>(null);

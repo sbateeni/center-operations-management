@@ -115,5 +115,5 @@ export function useMapTiles(mapInstanceRef: React.MutableRefObject<any>, mapProv
        layerGroup.addLayer(darkLayer);
     }
 
-  }, [mapProvider, mapInstanceRef.current]); 
+  }, [mapProvider]); 
 }

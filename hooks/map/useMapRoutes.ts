@@ -26,7 +26,7 @@ export function useMapRoutes(
       }).addTo(routeLayer);
       mapInstanceRef.current.fitBounds(line.getBounds(), { padding: [50, 50] });
     }
-  }, [currentRoute, mapInstanceRef.current]);
+  }, [currentRoute]);
 
   useEffect(() => {
      if (!mapInstanceRef.current || !window.L) return;
@@ -44,5 +44,5 @@ export function useMapRoutes(
          }).addTo(secondaryLayer);
          mapInstanceRef.current.fitBounds(line.getBounds(), { padding: [50, 50] });
      }
-  }, [secondaryRoute, mapInstanceRef.current]);
+  }, [secondaryRoute]);
 }
