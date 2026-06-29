@@ -1,10 +1,9 @@
 @echo off
-title Gemini House Navigator - غرفة العمليات الجغرافية
+title إدارة عمليات المراكز
 color 0A
 
 echo =============================================
-echo    Gemini House Navigator
-echo    نظام العمليات الجغرافية التكتيكي
+echo    إدارة عمليات المراكز
 echo =============================================
 echo.
 

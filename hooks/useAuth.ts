@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { auth } from '../services/auth';
 import { db } from '../services/db';
+import { mapProfile } from '../services/profiles';
 import { supabase } from '../services/supabase';
 import { UserPermissions, UserProfile, UserRole } from '../types';
 import { DEFAULT_PERMISSIONS, isAdmin as checkIsAdmin } from '../constants/roles';
@@ -109,34 +110,22 @@ export function useAuth() {
         (payload: any) => {
           const newProfile = payload.new;
           if (newProfile) {
-             // Map snake_case from DB to camelCase for App State
-             const mappedProfile: Partial<UserProfile> = {
-                 role: newProfile.role,
-                 isApproved: newProfile.is_approved === true,
-                 permissions: newProfile.permissions,
-                 governorate: newProfile.governorate,
-                 center: newProfile.center
-             };
+             const mapped = mapProfile(newProfile);
 
-              const isAdminOverride = checkIsAdmin(mappedProfile.role);
-              if (isAdminOverride || mappedProfile.isApproved) {
+             const isAdminOverride = checkIsAdmin(mapped.role);
+             if (isAdminOverride || mapped.isApproved) {
                setIsApproved(true);
              }
              
-             if (mappedProfile.role === 'banned') {
+             if (mapped.role === 'banned') {
                setIsApproved(false);
                setUserRole('banned');
              } else {
-               setUserRole(mappedProfile.role as UserRole);
+               setUserRole(mapped.role);
              }
 
-             // Update Permissions
-             if (mappedProfile.permissions) {
-               setPermissions(mappedProfile.permissions);
-             }
-             
-             // Update full profile object safely
-             setUserProfile(prev => prev ? ({ ...prev, ...mappedProfile }) : null);
+             setPermissions(mapped.permissions);
+             setUserProfile(prev => prev ? ({ ...prev, ...mapped }) : null);
           }
         }
       )

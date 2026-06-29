@@ -32,7 +32,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       </button>
       <div className="flex items-center gap-3">
         <div className="text-left">
-          <h1 className="font-bold text-base tracking-tight text-white leading-none mb-1">غرفة العمليات</h1>
+          <h1 className="font-bold text-base tracking-tight text-white leading-none mb-1">إدارة عمليات المراكز</h1>
           <div className="relative group">
             <button className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 rounded-lg px-2 py-0.5 text-[10px] font-bold text-slate-300 hover:bg-slate-700 transition-colors">
               {statusConfig[myStatus].label}

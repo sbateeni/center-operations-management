@@ -11,7 +11,7 @@ const ROLE_MIGRATION: Record<string, UserRole> = {
   user: 'source',
 };
 
-const mapProfile = (row: any): UserProfile => {
+export const mapProfile = (row: any): UserProfile => {
   const mappedRole = ROLE_MIGRATION[row.role] || row.role;
   const rolePerms = ROLE_DEFAULT_PERMISSIONS[mappedRole as keyof typeof ROLE_DEFAULT_PERMISSIONS] || DEFAULT_PERMISSIONS;
   return {
