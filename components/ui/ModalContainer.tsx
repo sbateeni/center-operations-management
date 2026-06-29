@@ -67,6 +67,9 @@ interface ModalContainerProps {
   onStartCampaign: (name: string, participants: Set<string>, targets: Set<string>, commanders: Set<string>) => void;
   onUpdateCampaign: (name: string, participants: Set<string>, targets: Set<string>, commanders: Set<string>) => void;
 
+  // Permissions
+  canEditUsers?: boolean;
+
   // Filter
   onFilterByUser: (userId: string, userName: string) => void;
 
@@ -116,7 +119,8 @@ export const ModalContainer: React.FC<ModalContainerProps> = ({
   onStartCampaign,
   onUpdateCampaign,
   onFilterByUser,
-  onLogout
+  onLogout,
+  canEditUsers
 }) => {
   return (
     <>
@@ -137,6 +141,7 @@ export const ModalContainer: React.FC<ModalContainerProps> = ({
         currentUserEmail={currentUserEmail}
         currentUserProfile={currentUserProfile}
         onFilterByUser={onFilterByUser}
+        canEditUsers={canEditUsers}
         onlineUsersList={onlineUsers}
       />
 

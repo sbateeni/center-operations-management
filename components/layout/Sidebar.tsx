@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapNote, RouteData, UnitStatus, UserProfile, UserRole, MapUser, WantedStatus } from '../../types';
+import { isAdmin } from '../../constants/roles';
 import { Wifi, WifiOff, XCircle, Navigation, Globe, Layers, Loader2, Eye, X } from 'lucide-react';
 import { db } from '../../services/db';
 
@@ -31,7 +32,6 @@ interface SidebarProps {
   onEditNote: (note: MapNote, e: React.MouseEvent) => void;
   onOpenDashboard: () => void;
   onOpenSettings: () => void;
-  canCreate: boolean;
   myStatus: UnitStatus;
   setMyStatus: (s: UnitStatus) => void;
   onlineUsers: MapUser[];
@@ -47,16 +47,19 @@ interface SidebarProps {
   hasActiveRoute: boolean;
   onClearRoute: () => void;
   onExpandLogs: () => void;
+  canManageContent?: boolean;
+  canViewLogs?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen, setIsOpen, notes, searchQuery, setSearchQuery, isSearching, onSearch,
-  onFlyToNote, onDeleteNote, onNavigateToNote, onStopNavigation, routeData,
-  onUpdateStatus, isConnected, userRole, onLogout, onEditNote, onOpenDashboard, onOpenSettings, canCreate,
+  onFlyToNote, onDeleteNote, onNavigateToNote, routeData,
+  onUpdateStatus, isConnected, userRole, onLogout, onEditNote, onOpenDashboard, onOpenSettings,
   myStatus, setMyStatus, onlineUsers, currentUserId, onOpenCampaigns,
   isSatellite, setIsSatellite, onLocateUser, isLocating, assignments, onAcceptAssignment,
   hasActiveRoute, onClearRoute,
   onExpandLogs,
+  canManageContent, canViewLogs,
 }) => {
   const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
   const [noteSearchQuery, setNoteSearchQuery] = useState('');
@@ -64,16 +67,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
 
-  const isAdmin = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(userRole || '');
+  const admin = isAdmin(userRole);
   const isSource = userRole === 'source';
 
   useEffect(() => {
-    if (!isAdmin || isSource) return;
+    if (!admin || isSource) return;
     const fetchProfiles = () => { db.getAllProfiles().then(setAllProfiles); };
     fetchProfiles();
     const interval = setInterval(fetchProfiles, 60000);
     return () => clearInterval(interval);
-  }, [isAdmin, isSource]);
+  }, [admin, isSource]);
 
   useEffect(() => {
     const onResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -104,7 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         return (
           <SidebarNotes
             notes={notes}
-            canCreate={canCreate}
+            canManageContent={canManageContent}
             onFlyToNote={onFlyToNote}
             onEditNote={onEditNote}
             onDeleteNote={onDeleteNote}
@@ -119,7 +122,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       case 'settings':
         return (
           <SidebarSettings
-            isAdmin={isAdmin}
+            isAdmin={admin}
             onOpenDashboard={onOpenDashboard}
             onOpenSettings={onOpenSettings}
             onOpenCampaigns={onOpenCampaigns}
@@ -213,6 +216,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <SidebarTabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        canViewLogs={canViewLogs}
         counts={{ notes: notes.length, logs: logsCount }}
       />
 

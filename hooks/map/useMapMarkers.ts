@@ -14,7 +14,8 @@ export function useMapMarkers(
     userLocation: { lat: number; lng: number } | null,
     onNavigate: ((note: MapNote) => void) | undefined,
     onDispatch: ((note: MapNote) => void) | undefined,
-    userRole: string | null,
+    canNavigate: boolean,
+    canDispatch: boolean,
     isSatellite: boolean
 ) {
   const markersRef = useRef<{ [key: string]: any }>({});
@@ -108,8 +109,7 @@ export function useMapMarkers(
         iconAnchor: [16, 16] // Centered for round icons
       });
 
-      const canCommand = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(userRole || '');
-      const popupContent = createNotePopupHtml(note, canCommand);
+      const popupContent = createNotePopupHtml(note, canNavigate, canDispatch);
       const handlePopupOpen = (event: unknown) => {
         setSelectedNote(note);
         const popupEvent = event as { popup?: { getElement?: () => HTMLElement | null } };
@@ -179,7 +179,7 @@ export function useMapMarkers(
         markersRef.current[selectedNote.id].openPopup();
     }
 
-  }, [notes, isSatellite, selectedNote, userRole, mapInstanceRef, setSelectedNote]);
+  }, [notes, isSatellite, selectedNote, canNavigate, canDispatch, mapInstanceRef, setSelectedNote]);
 
   // 3. Handle FlyTo
   useEffect(() => {

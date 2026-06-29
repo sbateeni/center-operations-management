@@ -28,9 +28,10 @@ interface LeafletMapProps {
   onUserClick?: (user: MapUser) => void; 
   secondaryRoute?: RouteData | null;
   canSeeOthers?: boolean;
+  canNavigate?: boolean;
+  canDispatch?: boolean;
   onNavigate?: (note: MapNote) => void;
   onDispatch?: (note: MapNote) => void;
-  userRole?: string | null;
   currentUserId?: string;
 }
 
@@ -49,9 +50,10 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   onUserClick,
   secondaryRoute,
   canSeeOthers = true,
+  canNavigate = false,
+  canDispatch = false,
   onNavigate,
   onDispatch,
-  userRole,
   currentUserId
 }) => {
   // 1. Initialize Map
@@ -71,7 +73,8 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     userLocation, 
     onNavigate, 
     onDispatch, 
-    userRole, 
+    canNavigate,
+    canDispatch,
     isSatellite
   );
 

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Activity, AlertTriangle, Radio, Info, MapPin, Trash2 } from 'lucide-react';
 import { db } from '../../services/db';
 import { LogEntry, UserRole } from '../types';
+import { isAdmin } from '../../constants/roles';
 
 interface FullLogsModalProps {
   isOpen: boolean;
@@ -14,7 +15,7 @@ export const FullLogsModal: React.FC<FullLogsModalProps> = ({ isOpen, onClose, u
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(userRole || '');
+  const canClear = isAdmin(userRole);
 
   useEffect(() => {
     if (isOpen) {
@@ -58,7 +59,7 @@ export const FullLogsModal: React.FC<FullLogsModalProps> = ({ isOpen, onClose, u
           </div>
           
           <div className="flex items-center gap-2">
-              {isAdmin && (
+              {canClear && (
                   <button 
                     onClick={handleClearLogs}
                     className="p-2 hover:bg-red-900/20 rounded-full text-slate-500 hover:text-red-400 transition-colors"

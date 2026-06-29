@@ -3,16 +3,7 @@ import { auth } from '../services/auth';
 import { db } from '../services/db';
 import { supabase } from '../services/supabase';
 import { UserPermissions, UserProfile, UserRole } from '../types';
-
-const DEFAULT_PERMISSIONS: UserPermissions = {
-  can_create: true,
-  can_see_others: true,
-  can_navigate: true,
-  can_edit_users: false,
-  can_dispatch: false,
-  can_view_logs: true,
-  can_manage_content: false
-};
+import { DEFAULT_PERMISSIONS, isAdmin as checkIsAdmin } from '../constants/roles';
 
 export function useAuth() {
   const [session, setSession] = useState<any>(null);
@@ -45,9 +36,8 @@ export function useAuth() {
                  setUserRole(profile.role);
                  setPermissions(profile.permissions);
                  
-                 // ADMIN OVERRIDE (For Super/Gov/Center Admins)
-                 const isAdmin = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(profile.role);
-                 const effectiveApproval = isAdmin ? true : profile.isApproved;
+                  const isAdminOverride = checkIsAdmin(profile.role);
+                  const effectiveApproval = isAdminOverride ? true : profile.isApproved;
                  setIsApproved(effectiveApproval);
                  
                  // If banned, treat as not approved (or handle in UI)
@@ -128,10 +118,8 @@ export function useAuth() {
                  center: newProfile.center
              };
 
-             const isAdmin = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(mappedProfile.role || '');
-             
-             // Update Approval
-             if (isAdmin || mappedProfile.isApproved) {
+              const isAdminOverride = checkIsAdmin(mappedProfile.role);
+              if (isAdminOverride || mappedProfile.isApproved) {
                setIsApproved(true);
              }
              

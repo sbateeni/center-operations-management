@@ -19,19 +19,21 @@ export const createNoteIconHtml = (isSatellite: boolean) => `
   </div>
 `;
 
-export const createNotePopupHtml = (note: MapNote, canCommand: boolean) => `
+export const createNotePopupHtml = (note: MapNote, canNavigate: boolean, canDispatch: boolean) => `
   <div class="font-sans min-w-[180px] text-right" dir="rtl">
     <strong class="text-sm text-blue-400 block mb-1">${getNoteDisplayTitle(note)}</strong>
     <p class="text-xs mb-3 line-clamp-2 text-slate-300">${note.userNote}</p>
     <div class="flex gap-2">
-       <button 
-         data-map-action="navigate"
-         data-note-id="${note.id}"
-         class="flex-1 bg-blue-600 text-white text-[10px] font-bold py-1.5 rounded hover:bg-blue-500 transition-colors"
-       >
-          ذهاب
-       </button>
-       ${canCommand ? `
+       ${canNavigate ? `
+         <button 
+           data-map-action="navigate"
+           data-note-id="${note.id}"
+           class="flex-1 bg-blue-600 text-white text-[10px] font-bold py-1.5 rounded hover:bg-blue-500 transition-colors"
+         >
+            ذهاب
+         </button>
+       ` : ''}
+       ${canDispatch ? `
          <button 
            data-map-action="dispatch"
            data-note-id="${note.id}"

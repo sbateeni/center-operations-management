@@ -4,6 +4,6 @@ export interface LogEntry {
   type: 'alert' | 'info' | 'dispatch' | 'status';
   userId?: string;
   timestamp: number;
-  governorate?: string;
-  center?: string;
+  governorate?: string | null;
+  center?: string | null;
 }

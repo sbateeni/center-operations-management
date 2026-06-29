@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAppLogic } from './hooks/useAppLogic';
 import { SourceSession } from './types';
 import { Monitor, Siren, Users, Clock } from 'lucide-react';
+import { isAdmin } from './constants/roles';
 
 // Components
 import { ModalContainer } from './components/ui/ModalContainer';
@@ -45,7 +46,7 @@ export default function App() {
     activeCampaign, handleStartCampaign, handleUpdateCampaign
   } = logic;
 
-  const isOpsManager = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(userRole || '');
+  const isOpsManager = isAdmin(userRole);
 
   // --- SOURCE SESSION AUTO-EXPIRY ---
   useEffect(() => {
@@ -89,7 +90,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#020617] text-white overflow-hidden select-none" dir="rtl">
+    <div className="flex h-screen w-full bg-[#020617] text-white overflow-hidden" dir="rtl">
       
       {/* 1. Sidebar */}
       <Sidebar 
@@ -113,7 +114,8 @@ export default function App() {
           onOpenDashboard={() => setShowDashboard(true)} 
           onOpenSettings={() => setShowSettings(true)}
           onOpenCampaigns={() => setShowCampaigns(true)}
-          canCreate={permissions.can_create} 
+          canManageContent={permissions.can_manage_content}
+          canViewLogs={permissions.can_view_logs}
           myStatus={myStatus}
           setMyStatus={setMyStatus}
           onlineUsers={onlineUsers}
@@ -193,7 +195,8 @@ export default function App() {
           onNavigate={handleNavigateToNote}
           onDispatch={handleOpenDispatchModal}
           canSeeOthers={permissions.can_see_others}
-          userRole={userRole}
+          canNavigate={permissions.can_navigate}
+          canDispatch={permissions.can_dispatch}
           currentUserId={userProfile?.id}
         />
 
@@ -204,6 +207,7 @@ export default function App() {
             onExpandLogs={() => setShowFullLogs(true)}
             distressedUser={distressedUser}
             onLocateSOS={handleLocateSOSUser}
+            canViewLogs={permissions.can_view_logs}
         />
 
         {/* Map Control Buttons */}
@@ -266,6 +270,7 @@ export default function App() {
             activeCampaign={activeCampaign}
             onStartCampaign={handleStartCampaign}
             onUpdateCampaign={handleUpdateCampaign}
+            canEditUsers={permissions.can_edit_users}
             onFilterByUser={(uid, name) => {
                 setTargetUserFilter({ id: uid, name });
                 setShowDashboard(false);

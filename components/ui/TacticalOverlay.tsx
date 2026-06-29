@@ -11,6 +11,7 @@ interface TacticalOverlayProps {
   onExpandLogs: () => void;
   distressedUser?: MapUser;
   onLocateSOS?: () => void;
+  canViewLogs?: boolean;
 }
 
 export const TacticalOverlay: React.FC<TacticalOverlayProps> = ({
@@ -18,7 +19,8 @@ export const TacticalOverlay: React.FC<TacticalOverlayProps> = ({
   onToggleSOS,
   onExpandLogs,
   distressedUser,
-  onLocateSOS
+  onLocateSOS,
+  canViewLogs = true
 }) => {
   return (
     <>
@@ -33,7 +35,7 @@ export const TacticalOverlay: React.FC<TacticalOverlayProps> = ({
             onToggle={onToggleSOS}
         />
         
-        <OperationsLog onExpand={onExpandLogs} />
+        {canViewLogs && <OperationsLog onExpand={onExpandLogs} />}
     </>
   );
 };

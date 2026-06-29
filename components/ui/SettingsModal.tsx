@@ -4,6 +4,7 @@ import { X, Mail, Shield, Globe, Layers, Download, CheckCircle2, Trash2, Wrench,
 import { offlineMaps } from '../../services/offlineMaps';
 import { db } from '../../services/db';
 import { UserRole, AccessCode } from '../types';
+import { isAdmin, isOfficerOrAbove } from '../../constants/roles';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -35,8 +36,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [generatingCode, setGeneratingCode] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  const isAdmin = ['super_admin', 'governorate_admin', 'center_admin', 'admin'].includes(userRole || '');
-  const isOfficerOrAbove = ['super_admin', 'governorate_admin', 'center_admin', 'admin', 'officer'].includes(userRole || '');
+  const isUserAdmin = isAdmin(userRole);
+  const isUserOfficerOrAbove = isOfficerOrAbove(userRole);
   const isSource = userRole === 'source';
 
   const fetchCodes = async () => {
@@ -49,10 +50,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   useEffect(() => {
-      if (isOpen && isOfficerOrAbove) {
-          fetchCodes();
+      if (isOpen && isUserOfficerOrAbove) {
+        fetchCodes();
       }
-  }, [isOpen, isOfficerOrAbove, fetchCodes]);
+  }, [isOpen, isUserOfficerOrAbove, fetchCodes]);
 
   const handleGenerateCode = async () => {
       if (!newCodeLabel.trim()) return;
@@ -170,7 +171,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div>
                   <div className="text-white font-bold text-lg">{username}</div>
                   <div className="text-slate-400 text-sm flex items-center gap-1.5">
-                    <Shield size={12} className={isOfficerOrAbove ? 'text-purple-400' : 'text-slate-500'} />
+                    <Shield size={12} className={isUserOfficerOrAbove ? 'text-purple-400' : 'text-slate-500'} />
                     <span>{roleLabel}</span>
                   </div>
                 </div>
@@ -193,7 +194,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </section>
 
           {/* --- NEW: SOURCE MANAGEMENT FOR OFFICERS+ --- */}
-          {isOfficerOrAbove && (
+          {isUserOfficerOrAbove && (
               <section>
                   <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xs uppercase text-slate-500 font-bold tracking-wider">إدارة المصادر (16 رقم)</h3>

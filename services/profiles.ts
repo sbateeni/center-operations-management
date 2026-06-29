@@ -1,17 +1,16 @@
 import { supabase } from './supabase';
 import type { UserProfile, UserPermissions } from '../types';
+import { DEFAULT_PERMISSIONS, ROLE_DEFAULT_PERMISSIONS } from '../constants/roles';
 
-const DEFAULT_PERMISSIONS: UserPermissions = {
-  can_create: true, can_see_others: true, can_navigate: true,
-  can_edit_users: false, can_dispatch: false, can_view_logs: true, can_manage_content: false
+const mapProfile = (row: any): UserProfile => {
+  const rolePerms = ROLE_DEFAULT_PERMISSIONS[row.role as keyof typeof ROLE_DEFAULT_PERMISSIONS] || DEFAULT_PERMISSIONS;
+  return {
+    id: row.id, username: row.username || 'Unknown', role: row.role,
+    isApproved: row.is_approved === true, email: row.email,
+    permissions: { ...rolePerms, ...(row.permissions || {}) },
+    governorate: row.governorate, center: row.center, last_seen: row.last_seen
+  };
 };
-
-const mapProfile = (row: any): UserProfile => ({
-  id: row.id, username: row.username || 'Unknown', role: row.role,
-  isApproved: row.is_approved === true, email: row.email,
-  permissions: { ...DEFAULT_PERMISSIONS, ...(row.permissions || {}) },
-  governorate: row.governorate, center: row.center, last_seen: row.last_seen
-});
 
 export const profiles = {
   async get(userId: string): Promise<UserProfile | null> {
@@ -34,7 +33,8 @@ export const profiles = {
   },
 
   async update(id: string, updates: any): Promise<void> {
-    await supabase.from('profiles').update(updates).eq('id', id);
+    const { error } = await supabase.from('profiles').update(updates).eq('id', id);
+    if (error) throw error;
   },
 
   async getRecentlyActive(): Promise<any[]> {

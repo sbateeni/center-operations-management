@@ -21,8 +21,8 @@ export interface MapNote {
   createdAt: number;
   sources?: GroundingSource[];
   status?: WantedStatus | 'caught' | 'not_caught';
-  governorate?: string;
-  center?: string;
+  governorate?: string | null;
+  center?: string | null;
   createdBy?: string;
   accessCode?: string;
   visibility?: 'public' | 'private';

@@ -7,16 +7,19 @@ interface SidebarTabsProps {
   activeTab: TabId;
   setActiveTab: (t: TabId) => void;
   counts: { notes: number; logs: number };
+  canViewLogs?: boolean;
 }
 
-const tabs: { id: TabId; icon: React.ElementType; label: string; badge?: keyof typeof counts }[] = [
+type Counts = { notes: number; logs: number };
+const allTabs: { id: TabId; icon: React.ElementType; label: string; badge?: keyof Counts }[] = [
   { id: 'units', icon: Users, label: 'الوحدات' },
   { id: 'notes', icon: MapPin, label: 'البلاغات', badge: 'notes' },
   { id: 'logs', icon: Activity, label: 'السجل', badge: 'logs' },
   { id: 'settings', icon: Settings, label: 'الإعدادات' },
 ];
 
-export const SidebarTabs: React.FC<SidebarTabsProps> = ({ activeTab, setActiveTab, counts }) => {
+export const SidebarTabs: React.FC<SidebarTabsProps> = ({ activeTab, setActiveTab, counts, canViewLogs }) => {
+  const tabs = allTabs.filter(t => t.id !== 'logs' || canViewLogs);
   return (
     <div className="flex border-b border-slate-800 bg-slate-900/80 shrink-0">
       {tabs.map(({ id, icon: Icon, label, badge }) => {

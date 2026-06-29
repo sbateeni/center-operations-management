@@ -6,6 +6,7 @@ export interface UserPermissions {
   can_dispatch: boolean;
   can_view_logs: boolean;
   can_manage_content: boolean;
+  can_manage_campaigns: boolean;
 }
 
 export type UserRole = 'super_admin' | 'admin' | 'governorate_admin' | 'center_admin' | 'judicial' | 'officer' | 'user' | 'banned' | 'source';
@@ -17,8 +18,8 @@ export interface UserProfile {
   isApproved: boolean;
   email?: string;
   permissions: UserPermissions;
-  governorate?: string;
-  center?: string;
+  governorate?: string | null;
+  center?: string | null;
   last_seen?: number;
 }
 
