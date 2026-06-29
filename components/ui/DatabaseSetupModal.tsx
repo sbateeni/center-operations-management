@@ -71,6 +71,10 @@ DROP POLICY IF EXISTS "Logs insert policy" ON public.logs;
 CREATE POLICY "Logs insert policy" ON public.logs FOR INSERT
 WITH CHECK (true);
 
+-- إضافة أعمدة الإحداثيات لسجلات الاستغاثة
+ALTER TABLE public.logs ADD COLUMN IF NOT EXISTS lat double precision;
+ALTER TABLE public.logs ADD COLUMN IF NOT EXISTS lng double precision;
+
 -- 6. دالة تأمين سياق المصدر (Source Context)
 CREATE OR REPLACE FUNCTION set_source_context(p_code text)
 RETURNS void AS $$

@@ -6,7 +6,7 @@ import { Activity, AlertTriangle, Radio, Maximize2 } from 'lucide-react';
 
 interface OperationsLogProps {
   onExpand?: () => void;
-  onLocateUser?: (userId: string) => void;
+  onLocateUser?: (userId: string, lat?: number, lng?: number) => void;
 }
 
 export const OperationsLog: React.FC<OperationsLogProps> = ({ onExpand, onLocateUser }) => {
@@ -33,7 +33,9 @@ export const OperationsLog: React.FC<OperationsLogProps> = ({ onExpand, onLocate
              timestamp: payload.new.timestamp,
              userId: payload.new.user_id,
              governorate: payload.new.governorate,
-             center: payload.new.center
+             center: payload.new.center,
+             lat: payload.new.lat ?? undefined,
+             lng: payload.new.lng ?? undefined
           };
           setLogs(prev => [newLog, ...prev].slice(0, 50));
           // Mark as new for flash animation
@@ -95,7 +97,7 @@ export const OperationsLog: React.FC<OperationsLogProps> = ({ onExpand, onLocate
                     {log.type === 'alert' && <AlertTriangle size={14} className="animate-bounce" />}
                     {log.type === 'dispatch' && <Radio size={14} className="text-purple-400" />}
                     {log.type === 'alert' && log.userId && onLocateUser ? (
-                      <button onClick={(e) => { e.stopPropagation(); onLocateUser(log.userId!); }} className="text-[11px] font-bold text-red-500 hover:text-red-300 hover:underline cursor-pointer">
+                      <button onClick={(e) => { e.stopPropagation(); onLocateUser(log.userId!, log.lat ?? undefined, log.lng ?? undefined); }} className="text-[11px] font-bold text-red-500 hover:text-red-300 hover:underline cursor-pointer">
                         {log.message}
                       </button>
                     ) : (

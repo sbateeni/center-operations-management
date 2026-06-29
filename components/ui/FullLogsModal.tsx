@@ -9,7 +9,7 @@ interface FullLogsModalProps {
   isOpen: boolean;
   onClose: () => void;
   userRole?: UserRole | null;
-  onLocateUser?: (userId: string) => void;
+  onLocateUser?: (userId: string, lat?: number, lng?: number) => void;
 }
 
 export const FullLogsModal: React.FC<FullLogsModalProps> = ({ isOpen, onClose, userRole, onLocateUser }) => {
@@ -90,7 +90,7 @@ export const FullLogsModal: React.FC<FullLogsModalProps> = ({ isOpen, onClose, u
            ) : (
              <div className="divide-y divide-slate-800/50">
                 {logs.map(log => (
-                  <div key={log.id} className={`p-4 transition-colors flex items-start gap-4 ${log.type === 'alert' && log.userId && onLocateUser ? 'cursor-pointer hover:bg-red-900/20' : 'hover:bg-slate-800/30'}`} onClick={() => { if (log.type === 'alert' && log.userId && onLocateUser) { onLocateUser(log.userId); onClose(); } }}>
+                  <div key={log.id} className={`p-4 transition-colors flex items-start gap-4 ${log.type === 'alert' && log.userId && onLocateUser ? 'cursor-pointer hover:bg-red-900/20' : 'hover:bg-slate-800/30'}`} onClick={() => { if (log.type === 'alert' && log.userId && onLocateUser) { onLocateUser(log.userId, log.lat ?? undefined, log.lng ?? undefined); onClose(); } }}>
                      <div className="shrink-0 mt-1">
                         {log.type === 'alert' && <AlertTriangle className="text-red-500" size={18} />}
                         {log.type === 'dispatch' && <Radio className="text-purple-500" size={18} />}

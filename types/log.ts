@@ -6,4 +6,6 @@ export interface LogEntry {
   timestamp: number;
   governorate?: string | null;
   center?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 }

@@ -12,7 +12,7 @@ interface TacticalOverlayProps {
   distressedUser?: MapUser;
   onLocateSOS?: (lat: number, lng: number) => void;
   canViewLogs?: boolean;
-  onLocateLogUser?: (userId: string) => void;
+  onLocateLogUser?: (userId: string, lat?: number, lng?: number) => void;
 }
 
 export const TacticalOverlay: React.FC<TacticalOverlayProps> = ({

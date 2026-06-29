@@ -59,7 +59,7 @@ interface ModalContainerProps {
   // Logs Props
   showFullLogs: boolean;
   closeFullLogs: () => void;
-  onLocateLogUser?: (userId: string) => void;
+  onLocateLogUser?: (userId: string, lat?: number, lng?: number) => void;
 
   // Campaigns Props
   showCampaigns: boolean;

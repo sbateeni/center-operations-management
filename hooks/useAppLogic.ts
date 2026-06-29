@@ -3,6 +3,7 @@ import { MapNote, MapUser, UnitStatus, ActiveCampaign, UserProfile } from '../ty
 import { db } from '../services/db';
 import { supabase } from '../services/supabase';
 import { searchPlace } from '../services/geocoding';
+import { GOVERNORATE_COORDS } from '../constants/governorates';
 
 // Hooks
 import { useAuth } from './useAuth';
@@ -31,7 +32,7 @@ export function useAppLogic(isSourceMode: boolean = false) {
     notes, isConnected, tableMissing, addNote, updateNote, deleteNote, updateStatus, setNotes, setIsConnected 
   } = useNotes(session, hasAccess, isAccountDeleted, userProfile);
   
-  const { userLocation } = useGeolocation(hasAccess || isSourceMode);
+  const { userLocation, requestLocation } = useGeolocation(hasAccess || isSourceMode);
   const { assignments, acceptAssignment } = useAssignments(session?.user?.id);
   const { onlineUsers } = usePresence(session, hasAccess, userLocation, myStatus, isSOS); 
   const { 
@@ -110,13 +111,23 @@ export function useAppLogic(isSourceMode: boolean = false) {
       setFlyToTarget({ lat, lng, zoom: 17, timestamp: Date.now(), showPulse: true });
   };
 
-  const locateLogUser = (userId: string) => {
+  const locateLogUser = (userId: string, logLat?: number, logLng?: number) => {
       const user = onlineUsers.find(u => u.id === userId);
-      if (!user) return;
-      const lat = user.lat ?? 0;
-      const lng = user.lng ?? 0;
-      if (lat === 0 && lng === 0) return;
-      setFlyToTarget({ lat, lng, zoom: 17, timestamp: Date.now(), showPulse: true });
+      if (user && user.lat && user.lng) {
+          setFlyToTarget({ lat: user.lat, lng: user.lng, zoom: 17, timestamp: Date.now(), showPulse: true });
+          return;
+      }
+      const lat = logLat ?? 0;
+      const lng = logLng ?? 0;
+      if (lat !== 0 || lng !== 0) {
+          setFlyToTarget({ lat, lng, zoom: 17, timestamp: Date.now(), showPulse: true });
+          return;
+      }
+      const profile = allProfiles.find(p => p.id === userId);
+      const gov = profile?.governorate;
+      if (gov && GOVERNORATE_COORDS[gov]) {
+          setFlyToTarget({ lat: GOVERNORATE_COORDS[gov].lat, lng: GOVERNORATE_COORDS[gov].lng, zoom: 12, timestamp: Date.now(), showPulse: true });
+      }
   };
 
   const handleToggleSOS = () => {
@@ -128,7 +139,9 @@ export function useAppLogic(isSourceMode: boolean = false) {
              userId: session.user.id,
              timestamp: Date.now(),
              governorate: userProfile?.governorate,
-             center: userProfile?.center
+             center: userProfile?.center,
+             lat: userLocation?.lat ?? null,
+             lng: userLocation?.lng ?? null
          }).catch(() => {});
      }
   };
