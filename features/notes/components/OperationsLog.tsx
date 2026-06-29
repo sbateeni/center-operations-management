@@ -11,8 +11,10 @@ interface OperationsLogProps {
 export const OperationsLog: React.FC<OperationsLogProps> = ({ onExpand }) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [newLogIds, setNewLogIds] = useState<Set<string>>(new Set());
+  const [hasAlert, setHasAlert] = useState(false);
   const [liveTime, setLiveTime] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const alertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     db.getRecentLogs().then(setLogs);
@@ -42,6 +44,13 @@ export const OperationsLog: React.FC<OperationsLogProps> = ({ onExpand }) => {
               return next;
             });
           }, 2500);
+
+          // Flash the bar red on alert
+          if (newLog.type === 'alert') {
+            setHasAlert(true);
+            if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
+            alertTimerRef.current = setTimeout(() => setHasAlert(false), 4000);
+          }
         }
       )
       .subscribe();
@@ -59,13 +68,21 @@ export const OperationsLog: React.FC<OperationsLogProps> = ({ onExpand }) => {
 
   return (
     <div 
-      className="absolute bottom-0 left-0 right-0 z-[1000] glass-panel border-t border-white/5 h-16 flex items-center px-6 font-mono text-xs overflow-hidden cursor-pointer hover:bg-slate-900/90 transition-all group shadow-[0_-10px_40px_rgba(0,0,0,0.8)]" 
+      className={`absolute bottom-0 left-0 right-0 z-[1000] glass-panel border-t h-16 flex items-center px-6 font-mono text-xs overflow-hidden cursor-pointer transition-all group shadow-[0_-10px_40px_rgba(0,0,0,0.8)] ${
+        hasAlert 
+          ? 'bg-red-900/40 border-red-500/50 animate-pulse' 
+          : 'hover:bg-slate-900/90 border-white/5'
+      }`} 
       dir="rtl"
       onClick={onExpand}
     >
-      <div className="bg-slate-900/90 px-4 py-1.5 rounded-full border border-blue-500/30 ml-6 flex items-center gap-2 shrink-0 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-         <Activity size={14} className="text-blue-400 animate-pulse" />
-         <span className="text-blue-400 font-black tracking-widest text-[10px] uppercase">سجل العمليات</span>
+      <div className={`px-4 py-1.5 rounded-full border ml-6 flex items-center gap-2 shrink-0 transition-all duration-500 ${
+          hasAlert
+            ? 'bg-red-900/80 border-red-500/70 shadow-[0_0_20px_rgba(239,68,68,0.4)]'
+            : 'bg-slate-900/90 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.2)]'
+        }`}>
+         <Activity size={14} className={hasAlert ? 'text-red-400 animate-ping' : 'text-blue-400 animate-pulse'} />
+         <span className={`font-black tracking-widest text-[10px] uppercase ${hasAlert ? 'text-red-400' : 'text-blue-400'}`}>سجل العمليات</span>
          <span className="text-[9px] font-mono text-slate-500 border-r border-slate-700 pr-2 mr-1">{liveTime}</span>
       </div>
       

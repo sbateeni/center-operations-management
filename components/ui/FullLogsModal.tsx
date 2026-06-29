@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Activity, AlertTriangle, Radio, Info, MapPin, Trash2 } from 'lucide-react';
+import { X, Activity, AlertTriangle, Radio, Info, MapPin, Trash2, User } from 'lucide-react';
 import { db } from '../../services/db';
-import { LogEntry, UserRole } from '../types';
+import { LogEntry, UserProfile, UserRole } from '../types';
 import { isAdmin } from '../../constants/roles';
 
 interface FullLogsModalProps {
@@ -14,14 +14,21 @@ interface FullLogsModalProps {
 export const FullLogsModal: React.FC<FullLogsModalProps> = ({ isOpen, onClose, userRole }) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userMap, setUserMap] = useState<Record<string, string>>({});
 
   const canClear = isAdmin(userRole);
 
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
-      db.getRecentLogs().then((data) => {
-        setLogs(data);
+      Promise.all([
+        db.getRecentLogs(),
+        db.getAllProfiles()
+      ]).then(([logData, profiles]) => {
+        setLogs(logData);
+        const map: Record<string, string> = {};
+        profiles.forEach((p: UserProfile) => { if (p.username) map[p.id] = p.username; });
+        setUserMap(map);
         setLoading(false);
       });
     }
@@ -91,13 +98,20 @@ export const FullLogsModal: React.FC<FullLogsModalProps> = ({ isOpen, onClose, u
                     </div>
                     <div className="flex-1">
                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-1">
-                          <span className={`font-bold text-base leading-snug ${log.type === 'alert' ? 'text-red-400' : 'text-slate-200'}`}>
-                            {log.message}
-                          </span>
-                          <span className="text-xs text-slate-500 whitespace-nowrap font-mono dir-ltr text-right">
-                            {formatTime(log.timestamp)}
-                          </span>
-                       </div>
+                           <span className={`font-bold text-base leading-snug ${log.type === 'alert' ? 'text-red-400' : 'text-slate-200'}`}>
+                             {log.message}
+                           </span>
+                           <span className="text-xs text-slate-500 whitespace-nowrap font-mono dir-ltr text-right">
+                             {formatTime(log.timestamp)}
+                           </span>
+                        </div>
+                        
+                        {log.userId && userMap[log.userId] && (
+                          <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-slate-400">
+                             <User size={11} />
+                             <span className="font-bold">{userMap[log.userId]}</span>
+                          </div>
+                        )}
                        
                        {(log.governorate || log.center) && (
                          <div className="flex items-center gap-2 mt-2 text-[10px] text-slate-500 bg-slate-900/50 w-fit px-2 py-1 rounded border border-slate-800">

@@ -66,6 +66,10 @@ CREATE POLICY "Logs access policy" ON public.logs FOR SELECT
 USING (
   public.auth_has_role(ARRAY['central_operations', 'governorate_police', 'center', 'officer'])
 );
+-- السماح للجميع بإدراج السجلات (لنداءات الاستغاثة والتسجيل)
+DROP POLICY IF EXISTS "Logs insert policy" ON public.logs;
+CREATE POLICY "Logs insert policy" ON public.logs FOR INSERT
+WITH CHECK (true);
 
 -- 6. دالة تأمين سياق المصدر (Source Context)
 CREATE OR REPLACE FUNCTION set_source_context(p_code text)

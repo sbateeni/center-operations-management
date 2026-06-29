@@ -115,7 +115,7 @@ export function useAppLogic(isSourceMode: boolean = false) {
              timestamp: Date.now(),
              governorate: userProfile?.governorate,
              center: userProfile?.center
-         });
+         }).catch(() => {});
      }
   };
 
