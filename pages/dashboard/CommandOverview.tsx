@@ -11,7 +11,6 @@ interface CommandOverviewProps {
 const PALESTINE_GOVERNORATES = [
   'القدس', 'رام الله والبيرة', 'نابلس', 'الخليل', 'جنين',
   'طولكرم', 'قلقيلية', 'بيت لحم', 'سلفيت', 'أريحا والأغوار', 'طوباس',
-  'شمال غزة', 'غزة', 'دير البلح', 'خان يونس', 'رفح'
 ];
 
 const StatCard = ({ icon: Icon, label, value, sub, color }: {
@@ -34,7 +33,7 @@ export const CommandOverview: React.FC<CommandOverviewProps> = ({ profiles, onli
   const totalUsers = profiles.length;
   const onlineCount = onlineUsersList.length;
   const pendingCount = profiles.filter(p => !p.isApproved && p.role !== 'banned').length;
-  const activeRoles = ['super_admin', 'governorate_admin', 'center_admin', 'admin', 'officer', 'judicial'];
+  const activeRoles = ['central_operations', 'governorate_police', 'center', 'officer'];
   const cmdCount = profiles.filter(p => activeRoles.includes(p.role) && onlineUserIds.has(p.id)).length;
 
   const govStats = PALESTINE_GOVERNORATES.map(gov => ({
@@ -115,16 +114,16 @@ export const CommandOverview: React.FC<CommandOverviewProps> = ({ profiles, onli
                   </div>
                   {profile && (
                     <span className={`text-[9px] px-1.5 py-0.5 rounded border ${
-                      profile.role === 'super_admin' || profile.role === 'admin' ? 'bg-purple-900/30 text-purple-400 border-purple-900/50' :
-                      profile.role === 'officer' || profile.role === 'judicial' ? 'bg-blue-900/30 text-blue-400 border-blue-900/50' :
-                      'bg-slate-700/50 text-slate-400 border-slate-700'
-                    }`}>
-                      {profile.role === 'super_admin' ? 'قائد' :
-                       profile.role === 'governorate_admin' ? 'مدير' :
-                       profile.role === 'center_admin' ? 'مدير مركز' :
-                       profile.role === 'officer' ? 'ضابط' :
-                       profile.role === 'judicial' ? 'قضائية' : 'عنصر'}
-                    </span>
+                       profile.role === 'central_operations' || profile.role === 'governorate_police' || profile.role === 'center' ? 'bg-purple-900/30 text-purple-400 border-purple-900/50' :
+                       profile.role === 'officer' ? 'bg-blue-900/30 text-blue-400 border-blue-900/50' :
+                       'bg-slate-700/50 text-slate-400 border-slate-700'
+                     }`}>
+                       {profile.role === 'central_operations' ? 'العمليات المركزية' :
+                        profile.role === 'governorate_police' ? 'شرطة المحافظة' :
+                        profile.role === 'center' ? 'المركز' :
+                        profile.role === 'officer' ? 'ضابط' :
+                        profile.role === 'source' ? 'مصدر' : 'عنصر'}
+                     </span>
                   )}
                 </div>
               );

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Users, Shield, Award, WifiOff, Scale, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, Shield, Award, WifiOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { MapUser, UserProfile } from '../../../types';
 
 interface SidebarUnitsProps {
   onlineUsers: MapUser[];
   allProfiles: UserProfile[];
   currentUserId?: string;
+  userRole?: string | null;
+  userGovernorate?: string | null;
 }
 
 const STATUS_CONFIG = {
@@ -16,25 +18,30 @@ const STATUS_CONFIG = {
 };
 
 const ROLE_STYLES: Record<string, string> = {
-  super_admin: 'bg-purple-900/40 text-purple-300 border-purple-700/50',
-  admin: 'bg-purple-900/40 text-purple-300 border-purple-700/50',
-  governorate_admin: 'bg-indigo-900/40 text-indigo-300 border-indigo-700/50',
-  center_admin: 'bg-blue-900/40 text-blue-300 border-blue-700/50',
-  judicial: 'bg-teal-900/40 text-teal-300 border-teal-700/50',
+  central_operations: 'bg-purple-900/40 text-purple-300 border-purple-700/50',
+  governorate_police: 'bg-indigo-900/40 text-indigo-300 border-indigo-700/50',
+  center: 'bg-blue-900/40 text-blue-300 border-blue-700/50',
   officer: 'bg-sky-900/40 text-sky-300 border-sky-700/50',
+  source: 'bg-slate-700/40 text-slate-400 border-slate-700/50',
   banned: 'bg-red-900/40 text-red-300 border-red-700/50',
 };
 
 const ROLE_LABELS: Record<string, string> = {
-  super_admin: 'قائد عام', governorate_admin: 'مدير محافظة', center_admin: 'مدير مركز',
-  judicial: 'ضابط قضائية', officer: 'ضابط', user: 'عنصر', admin: 'مسؤول', banned: 'محظور',
+  central_operations: 'العمليات المركزية', governorate_police: 'شرطة المحافظة', center: 'المركز',
+  officer: 'ضابط', source: 'مصدر', banned: 'محظور',
 };
 
-export const SidebarUnits: React.FC<SidebarUnitsProps> = ({ onlineUsers, allProfiles, currentUserId }) => {
+export const SidebarUnits: React.FC<SidebarUnitsProps> = ({ onlineUsers, allProfiles, currentUserId, userRole, userGovernorate }) => {
   const [showAll, setShowAll] = useState(false);
   const onlineIds = new Set(onlineUsers.map((u) => u.id));
 
-  const sortedUsers = [...allProfiles].sort((a, b) => {
+  const filteredByGov = allProfiles.filter(u => {
+    if (!userRole || userRole === 'central_operations') return true;
+    if (userRole === 'source') return u.id === currentUserId;
+    return userGovernorate != null && u.governorate === userGovernorate;
+  });
+
+  const sortedUsers = [...filteredByGov].sort((a, b) => {
     const aOnline = onlineIds.has(a.id);
     const bOnline = onlineIds.has(b.id);
     if (aOnline && !bOnline) return -1;
@@ -80,8 +87,7 @@ export const SidebarUnits: React.FC<SidebarUnitsProps> = ({ onlineUsers, allProf
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-xs font-bold truncate ${ui.textColor}`}>{u.username}</span>
                   <span className={`text-[9px] px-1.5 py-0.5 rounded border ${ROLE_STYLES[u.role] || 'bg-slate-700/40 text-slate-400 border-slate-600/50'} flex items-center gap-1 shrink-0`}>
-                    {u.role === 'super_admin' && <Shield size={8} />}
-                    {u.role === 'judicial' && <Scale size={8} />}
+                    {u.role === 'central_operations' && <Shield size={8} />}
                     {u.role === 'officer' && <Award size={8} />}
                     {ROLE_LABELS[u.role] || 'عنصر'}
                   </span>

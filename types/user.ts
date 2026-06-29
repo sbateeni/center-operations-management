@@ -9,7 +9,7 @@ export interface UserPermissions {
   can_manage_campaigns: boolean;
 }
 
-export type UserRole = 'super_admin' | 'admin' | 'governorate_admin' | 'center_admin' | 'judicial' | 'officer' | 'user' | 'banned' | 'source';
+export type UserRole = 'central_operations' | 'governorate_police' | 'center' | 'officer' | 'source' | 'banned';
 
 export interface UserProfile {
   id: string;
@@ -35,4 +35,6 @@ export interface MapUser {
   status: UnitStatus;
   isSOS: boolean;
   isOnline?: boolean;
+  governorate?: string | null;
+  center?: string | null;
 }

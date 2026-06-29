@@ -14,19 +14,17 @@ interface EditUserModalProps {
 }
 
 const roleColors: Record<string, string> = {
-  super_admin: 'text-purple-400 bg-purple-900/20 border-purple-900/50',
-  governorate_admin: 'text-purple-400 bg-purple-900/20 border-purple-900/50',
-  center_admin: 'text-indigo-400 bg-indigo-900/20 border-indigo-900/50',
-  admin: 'text-blue-400 bg-blue-900/20 border-blue-900/50',
+  central_operations: 'text-purple-400 bg-purple-900/20 border-purple-900/50',
+  governorate_police: 'text-indigo-400 bg-indigo-900/20 border-indigo-900/50',
+  center: 'text-blue-400 bg-blue-900/20 border-blue-900/50',
   officer: 'text-sky-400 bg-sky-900/20 border-sky-900/50',
-  judicial: 'text-teal-400 bg-teal-900/20 border-teal-900/50',
-  user: 'text-slate-400 bg-slate-800 border-slate-700',
+  source: 'text-slate-400 bg-slate-800 border-slate-700',
   banned: 'text-red-400 bg-red-900/20 border-red-900/50',
 };
 
 const roleLabels: Record<string, string> = {
-  super_admin: 'قائد عام', governorate_admin: 'مدير محافظة', center_admin: 'مدير مركز',
-  admin: 'مسؤول', officer: 'ضابط', judicial: 'ضابط قضائية', user: 'عنصر', banned: 'محظور',
+  central_operations: 'العمليات المركزية', governorate_police: 'شرطة المحافظة', center: 'المركز',
+  officer: 'ضابط', source: 'مصدر', banned: 'محظور',
 };
 
 export const EditUserModal: React.FC<EditUserModalProps> = ({
@@ -38,9 +36,9 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
 
   useEffect(() => {
     if (user) {
-      if (currentUserProfile?.role === 'governorate_admin') {
+      if (currentUserProfile?.role === 'governorate_police') {
         setEditGov(currentUserProfile.governorate || "");
-      } else if (currentUserProfile?.role === 'center_admin') {
+      } else if (currentUserProfile?.role === 'center') {
         setEditGov(currentUserProfile.governorate || "");
         setEditCenter(currentUserProfile.center || "");
       } else {
@@ -138,17 +136,14 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                 value={user.role}
                 onChange={(e) => onUpdateRole(user, e.target.value as UserRole)}
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-purple-500 focus:outline-none"
-                disabled={!['super_admin', 'admin', 'governorate_admin', 'center_admin'].includes(currentUserProfile?.role || '')}
+                disabled={!['central_operations', 'governorate_police', 'center'].includes(currentUserProfile?.role || '')}
               >
-                <option value="user">عنصر</option>
+                <option value="source">مصدر</option>
                 <option value="officer">ضابط</option>
-                <option value="judicial">ضابط قضائية (حملات)</option>
-                <option value="center_admin">مدير مركز</option>
-                {(currentUserProfile?.role === 'super_admin' || currentUserProfile?.role === 'admin') && (
-                  <>
-                    <option value="governorate_admin">مدير محافظة</option>
-                    <option value="super_admin">قيادة عامة</option>
-                  </>
+                <option value="center">المركز</option>
+                <option value="governorate_police">شرطة المحافظة</option>
+                {currentUserProfile?.role === 'central_operations' && (
+                  <option value="central_operations">العمليات المركزية</option>
                 )}
               </select>
             </div>
@@ -160,7 +155,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                   value={editGov}
                   onChange={(e) => { setEditGov(e.target.value); setEditCenter(""); }}
                   className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white text-sm appearance-none focus:border-purple-500 focus:outline-none disabled:opacity-50"
-                  disabled={currentUserProfile?.role === 'governorate_admin' || currentUserProfile?.role === 'center_admin'}
+                  disabled={currentUserProfile?.role === 'governorate_police' || currentUserProfile?.role === 'center'}
                 >
                   <option value="">-- اختر المحافظة --</option>
                   {governoratesList.map(gov => <option key={gov} value={gov}>{gov}</option>)}
@@ -169,7 +164,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
               </div>
             </div>
 
-            {user.role !== 'governorate_admin' && (
+            {user.role !== 'governorate_police' && (
               <div>
                 <label className="text-xs text-slate-400 block mb-1">المركز / القسم</label>
                 <input
@@ -177,7 +172,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                   onChange={(e) => setEditCenter(e.target.value)}
                   placeholder="اكتب اسم المركز..."
                   className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-purple-500 focus:outline-none disabled:opacity-50"
-                  disabled={currentUserProfile?.role === 'center_admin'}
+                  disabled={currentUserProfile?.role === 'center'}
                 />
                 <datalist id="centers-list">
                   {availableCenters.map(c => <option key={c} value={c} />)}
@@ -185,7 +180,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
               </div>
             )}
 
-            {user.role === 'super_admin' && (
+            {user.role === 'central_operations' && (
               <div className="bg-purple-900/20 border border-purple-900/50 rounded-lg p-3 text-center col-span-2">
                 <span className="text-purple-400 text-sm font-bold flex items-center justify-center gap-2">
                   <Shield size={16} /> يملك كافة الصلاحيات على جميع المحافظات (يمكن تحديد محافظة للتصنيف فقط)
@@ -201,7 +196,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
         </div>
 
         {/* Permissions Section */}
-        {user.role !== 'super_admin' && (
+        {user.role !== 'central_operations' && (
           <div className="space-y-3 mb-5 pb-5 border-b border-slate-800">
             <h4 className="text-xs uppercase text-slate-500 font-bold">الصلاحيات الفنية</h4>
             <div className="grid grid-cols-1 gap-2">

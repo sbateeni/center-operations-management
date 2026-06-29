@@ -33,6 +33,8 @@ interface LeafletMapProps {
   onNavigate?: (note: MapNote) => void;
   onDispatch?: (note: MapNote) => void;
   currentUserId?: string;
+  userRole?: string | null;
+  userGovernorate?: string | null;
 }
 
 export const LeafletMap: React.FC<LeafletMapProps> = ({
@@ -54,7 +56,9 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   canDispatch = false,
   onNavigate,
   onDispatch,
-  currentUserId
+  currentUserId,
+  userRole,
+  userGovernorate
 }) => {
   // 1. Initialize Map
   const { mapContainerRef, mapInstanceRef } = useMapInstance(onMapClick);
@@ -83,7 +87,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     : otherUsers;
 
   // 4. Manage Other Users Markers
-  useMapUsers(mapInstanceRef, filteredOtherUsers, onUserClick, canSeeOthers);
+  useMapUsers(mapInstanceRef, filteredOtherUsers, onUserClick, canSeeOthers, userRole, userGovernorate);
 
   // 5. Manage Routes
   useMapRoutes(mapInstanceRef, currentRoute, secondaryRoute);

@@ -23,7 +23,6 @@ interface SidebarProps {
   onFlyToNote: (note: MapNote) => void;
   onDeleteNote: (id: string, e: React.MouseEvent) => void;
   onNavigateToNote: (note: MapNote) => void;
-  onStopNavigation: () => void;
   routeData: RouteData | null;
   onUpdateStatus: (id: string, status: WantedStatus) => void;
   isConnected: boolean;
@@ -49,13 +48,14 @@ interface SidebarProps {
   onExpandLogs: () => void;
   canManageContent?: boolean;
   canViewLogs?: boolean;
+  userGovernorate?: string | null;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen, setIsOpen, notes, searchQuery, setSearchQuery, isSearching, onSearch,
   onFlyToNote, onDeleteNote, onNavigateToNote, routeData,
-  onUpdateStatus, isConnected, userRole, onLogout, onEditNote, onOpenDashboard, onOpenSettings,
-  myStatus, setMyStatus, onlineUsers, currentUserId, onOpenCampaigns,
+  onUpdateStatus, isConnected,   userRole, onLogout, onEditNote, onOpenDashboard, onOpenSettings,
+  myStatus, setMyStatus, onlineUsers, currentUserId, onOpenCampaigns, userGovernorate,
   isSatellite, setIsSatellite, onLocateUser, isLocating, assignments, onAcceptAssignment,
   hasActiveRoute, onClearRoute,
   onExpandLogs,
@@ -101,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <p className="text-xs text-slate-500">تم إخفاء بيانات الوحدات الأخرى لأسباب أمنية</p>
           </div>
         ) : (
-          <SidebarUnits onlineUsers={onlineUsers} allProfiles={allProfiles} currentUserId={currentUserId} />
+          <SidebarUnits onlineUsers={onlineUsers} allProfiles={allProfiles} currentUserId={currentUserId} userRole={userRole} userGovernorate={userGovernorate} />
         );
       case 'notes':
         return (

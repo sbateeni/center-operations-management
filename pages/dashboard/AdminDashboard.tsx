@@ -23,7 +23,6 @@ interface AdminDashboardProps {
 const PALESTINE_GOVERNORATES = [
   'القدس', 'رام الله والبيرة', 'نابلس', 'الخليل', 'جنين',
   'طولكرم', 'قلقيلية', 'بيت لحم', 'سلفيت', 'أريحا والأغوار', 'طوباس',
-  'شمال غزة', 'غزة', 'دير البلح', 'خان يونس', 'رفح'
 ];
 
 type DashboardTab = 'overview' | 'users' | 'sources' | 'alerts';
@@ -46,7 +45,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const onlineUserIds = new Set(onlineUsersList.map(u => u.id));
 
   const isUserOfficerOrAbove = isOfficerOrAbove(currentUserProfile?.role);
-  const isSuperAdmin = currentUserProfile?.role === 'super_admin';
+  const isSuperAdmin = currentUserProfile?.role === 'central_operations';
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -71,7 +70,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleUpdateHierarchy = async (user: UserProfile, gov: string, center: string) => {
      const updates: Record<string, string | null> = {};
      updates.governorate = gov || null;
-     if (user.role !== 'governorate_admin') updates.center = center || null;
+     if (user.role !== 'governorate_police') updates.center = center || null;
      else updates.center = null;
      setProfiles(prev => prev.map(p => p.id === user.id ? { ...p, ...updates } as UserProfile : p));
      setSelectedUserForPerms(prev => prev ? { ...prev, ...updates } as UserProfile : null);
@@ -91,8 +90,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (user.id === currentUserId) return;
     if (confirm(`هل أنت متأكد من حظر المستخدم ${user.username}؟`)) {
         const isBanned = user.role === 'banned';
-        const newRole = isBanned ? 'user' : 'banned';
-        setProfiles(prev => prev.map(p => p.id === user.id ? { ...p, role: newRole, isApproved: isBanned } : p));
+        const newRole = isBanned ? 'source' : 'banned';
+        setProfiles(prev => prev.map(p => p.id === user.id ? { ...p, role: newRole as UserRole, isApproved: isBanned } : p));
         try { await db.updateProfile(user.id, { role: newRole, is_approved: isBanned }); }
         catch { fetchData(); }
     }

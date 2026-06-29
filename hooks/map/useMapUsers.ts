@@ -5,11 +5,23 @@ import React, { useEffect, useRef } from 'react';
 import { MapUser } from '../../types';
 import { createUserIconHtml } from '../../utils/mapHelpers';
 
+function shouldSeeUser(currentRole: string | undefined | null, currentGov: string | undefined | null, user: MapUser): boolean {
+  if (!currentRole) return true;
+  if (currentRole === 'central_operations') return true;
+  if (currentRole === 'source') return false;
+  if (currentRole === 'governorate_police' || currentRole === 'center' || currentRole === 'officer') {
+    return currentGov != null && user.governorate === currentGov;
+  }
+  return true;
+}
+
 export function useMapUsers(
     mapInstanceRef: React.MutableRefObject<any>,
     otherUsers: MapUser[],
     onUserClick: ((user: MapUser) => void) | undefined,
-    canSeeOthers: boolean
+    canSeeOthers: boolean,
+    userRole?: string | null,
+    userGovernorate?: string | null
 ) {
   const userMarkersRef = useRef<{ [key: string]: any }>({});
 
@@ -17,7 +29,8 @@ export function useMapUsers(
       if (!mapInstanceRef.current) return;
       const map = mapInstanceRef.current;
 
-      const activeIds = new Set(otherUsers.map(u => u.id));
+      const visibleUsers = otherUsers.filter(u => shouldSeeUser(userRole, userGovernorate, u));
+      const activeIds = new Set(visibleUsers.map(u => u.id));
 
       // Remove old
       Object.keys(userMarkersRef.current).forEach(id => {
@@ -28,7 +41,7 @@ export function useMapUsers(
       });
 
       // Add/Update
-      otherUsers.forEach(user => {
+      visibleUsers.forEach(user => {
           if (!canSeeOthers) return;
           if (user.lat == null || user.lng == null) return;
 
@@ -61,5 +74,5 @@ export function useMapUsers(
            });
       }
 
-  }, [otherUsers, canSeeOthers, onUserClick]);
+  }, [otherUsers, canSeeOthers, onUserClick, userRole, userGovernorate]);
 }

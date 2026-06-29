@@ -30,51 +30,44 @@ USING (
   created_by = auth.uid() -- من أنشأها
   OR visibility = 'public' -- الملاحظات العامة
   OR access_code = current_setting('app.current_source_code', true) -- المصادر المصرح لها
+  OR public.auth_has_role(ARRAY['central_operations'])
   OR (
-    EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE id = auth.uid() 
-      AND role IN ('super_admin', 'admin')
-    )
-  )
-  OR (
-    EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE id = auth.uid() 
-      AND role IN ('governorate_admin', 'center_admin', 'officer')
-      AND governorate = notes.governorate
-    )
+    public.auth_has_role(ARRAY['governorate_police', 'center', 'officer'])
+    AND governorate = notes.governorate
   )
 );
 
--- 3. حماية تتبع المواقع الحية (Profiles)
+-- 3. دالة مساعدة لتجنب التكرار اللانهائي في RLS
+CREATE OR REPLACE FUNCTION public.auth_has_role(roles text[])
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE id = auth.uid() 
+    AND role = ANY(roles)
+  );
+$$;
+
+-- 4. حماية تتبع المواقع الحية (Profiles)
 -- القاعدة: لا يمكن رؤية إحداثيات الزملاء إلا لمن يمتلك رتبة إشرافية
 DROP POLICY IF EXISTS "Profiles visibility policy" ON public.profiles;
 CREATE POLICY "Profiles visibility policy" ON public.profiles FOR SELECT
 USING (
   id = auth.uid() -- ملفي الشخصي
-  OR (
-    EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE id = auth.uid() 
-      AND role IN ('super_admin', 'admin', 'governorate_admin', 'center_admin', 'officer', 'judicial')
-    )
-  )
+  OR public.auth_has_role(ARRAY['central_operations', 'governorate_police', 'center', 'officer'])
 );
 
--- 4. حماية سجلات العمليات (Logs)
+-- 5. حماية سجلات العمليات (Logs)
 -- المصادر والعناصر العاديين لا يرون السجلات الإدارية
 DROP POLICY IF EXISTS "Logs access policy" ON public.logs;
 CREATE POLICY "Logs access policy" ON public.logs FOR SELECT
 USING (
-  EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE id = auth.uid() 
-    AND role NOT IN ('source', 'user')
-  )
+  public.auth_has_role(ARRAY['central_operations', 'governorate_police', 'center', 'officer'])
 );
 
--- 5. دالة تأمين سياق المصدر (Source Context)
+-- 6. دالة تأمين سياق المصدر (Source Context)
 CREATE OR REPLACE FUNCTION set_source_context(p_code text)
 RETURNS void AS $$
 BEGIN
@@ -82,7 +75,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 6. دالة التحقق من كود المصدر وربطه بالجهاز
+-- 7. دالة التحقق من كود المصدر وربطه بالجهاز
 CREATE OR REPLACE FUNCTION claim_access_code(p_code text, p_device_id text)
 RETURNS jsonb AS $$
 DECLARE

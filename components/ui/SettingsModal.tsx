@@ -142,12 +142,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   // Correct Role Label Display
   let roleLabel = 'عنصر';
-  if (userRole === 'super_admin') roleLabel = 'قائد عام';
-  else if (userRole === 'governorate_admin') roleLabel = 'مدير محافظة';
-  else if (userRole === 'center_admin') roleLabel = 'مدير مركز';
+  if (userRole === 'central_operations') roleLabel = 'العمليات المركزية';
+  else if (userRole === 'governorate_police') roleLabel = 'شرطة المحافظة';
+  else if (userRole === 'center') roleLabel = 'المركز';
   else if (userRole === 'officer') roleLabel = 'ضابط';
-  else if (userRole === 'admin') roleLabel = 'مسؤول';
-  else if (userRole === 'source') roleLabel = 'مصدر مؤقت';
+  else if (userRole === 'source') roleLabel = 'مصدر';
 
   return (
     <div className="fixed inset-0 z-[3000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" dir="rtl">

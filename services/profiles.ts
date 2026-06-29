@@ -1,11 +1,21 @@
 import { supabase } from './supabase';
-import type { UserProfile, UserPermissions } from '../types';
+import type { UserProfile, UserRole } from '../types';
 import { DEFAULT_PERMISSIONS, ROLE_DEFAULT_PERMISSIONS } from '../constants/roles';
 
+const ROLE_MIGRATION: Record<string, UserRole> = {
+  super_admin: 'central_operations',
+  governorate_admin: 'governorate_police',
+  center_admin: 'center',
+  admin: 'central_operations',
+  judicial: 'officer',
+  user: 'source',
+};
+
 const mapProfile = (row: any): UserProfile => {
-  const rolePerms = ROLE_DEFAULT_PERMISSIONS[row.role as keyof typeof ROLE_DEFAULT_PERMISSIONS] || DEFAULT_PERMISSIONS;
+  const mappedRole = ROLE_MIGRATION[row.role] || row.role;
+  const rolePerms = ROLE_DEFAULT_PERMISSIONS[mappedRole as keyof typeof ROLE_DEFAULT_PERMISSIONS] || DEFAULT_PERMISSIONS;
   return {
-    id: row.id, username: row.username || 'Unknown', role: row.role,
+    id: row.id, username: row.username || 'Unknown', role: mappedRole,
     isApproved: row.is_approved === true, email: row.email,
     permissions: { ...rolePerms, ...(row.permissions || {}) },
     governorate: row.governorate, center: row.center, last_seen: row.last_seen

@@ -80,7 +80,7 @@ export const CampaignsModal: React.FC<CampaignsModalProps> = ({
 
     // 3. Commanders (Potential Leaders)
     const availableCommanders = allProfiles
-        .filter(p => ['officer', 'judicial', 'center_admin', 'governorate_admin', 'super_admin'].includes(p.role))
+        .filter(p => ['officer', 'center', 'governorate_police', 'central_operations'].includes(p.role))
         .map(p => ({
             id: p.id,
             label: p.username,

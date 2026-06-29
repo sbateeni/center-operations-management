@@ -20,7 +20,7 @@ export function useAppLogic(isSourceMode: boolean = false) {
   } = useAuth();
   
   const isBanned = userRole === 'banned';
-  const isAnyAdmin = ['admin', 'super_admin', 'governorate_admin', 'center_admin', 'officer'].includes(userRole || '');
+  const isAnyAdmin = ['central_operations', 'governorate_police', 'center', 'officer'].includes(userRole || '');
   const hasAccess = !isAccountDeleted && !isBanned && (isApproved || isAnyAdmin);
 
   const [myStatus, setMyStatus] = useState<UnitStatus>('patrol');

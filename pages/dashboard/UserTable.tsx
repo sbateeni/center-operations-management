@@ -77,19 +77,19 @@ export const UserTable: React.FC<UserTableProps> = ({
                  </div>
                </td>
                <td className="p-4">
-                 <div className={`px-3 py-1 rounded-lg text-xs font-bold border w-fit 
-                    ${user.role === 'officer' ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' : 
-                      user.role && user.role.includes('admin') ? 'bg-purple-900/20 text-purple-400 border-purple-900/50' : 
-                      'bg-slate-800 text-slate-400 border-slate-700'}`}>
-                   {user.role === 'super_admin' ? 'قائد عام' : 
-                    user.role === 'governorate_admin' ? 'مدير محافظة' : 
-                    user.role === 'center_admin' ? 'مدير مركز' : 
-                    user.role === 'officer' ? 'ضابط' :
-                   user.role === 'admin' ? 'مسؤول' : 'عنصر'}
-                 </div>
-               </td>
-               <td className="p-4 text-slate-400">
-                  {user.role === 'super_admin' ? (
+                  <div className={`px-3 py-1 rounded-lg text-xs font-bold border w-fit 
+                     ${user.role === 'officer' ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' : 
+                       ['central_operations', 'governorate_police', 'center'].includes(user.role) ? 'bg-purple-900/20 text-purple-400 border-purple-900/50' : 
+                       'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                    {user.role === 'central_operations' ? 'العمليات المركزية' : 
+                     user.role === 'governorate_police' ? 'شرطة المحافظة' : 
+                     user.role === 'center' ? 'المركز' : 
+                     user.role === 'officer' ? 'ضابط' :
+                     user.role === 'source' ? 'مصدر' : 'عنصر'}
+                  </div>
+                </td>
+                <td className="p-4 text-slate-400">
+                   {user.role === 'central_operations' ? (
                       <span className="text-purple-400 font-bold text-xs bg-purple-900/20 px-2 py-1 rounded">كل الصلاحيات</span>
                   ) : (
                       <div className="flex flex-col gap-1">

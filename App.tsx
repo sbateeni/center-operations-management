@@ -116,6 +116,7 @@ export default function App() {
           onOpenCampaigns={() => setShowCampaigns(true)}
           canManageContent={permissions.can_manage_content}
           canViewLogs={permissions.can_view_logs}
+          userGovernorate={userProfile?.governorate}
           myStatus={myStatus}
           setMyStatus={setMyStatus}
           onlineUsers={onlineUsers}
@@ -198,6 +199,8 @@ export default function App() {
           canNavigate={permissions.can_navigate}
           canDispatch={permissions.can_dispatch}
           currentUserId={userProfile?.id}
+          userRole={userRole}
+          userGovernorate={userProfile?.governorate}
         />
 
         {/* HUD: Tactical Overlay (SOS, Logs) */}

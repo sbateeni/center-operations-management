@@ -15,13 +15,11 @@ interface UsersPanelProps {
 
 const ROLE_OPTIONS = [
   { value: '', label: 'كل الرتب' },
-  { value: 'super_admin', label: 'قائد عام' },
-  { value: 'governorate_admin', label: 'مدير محافظة' },
-  { value: 'center_admin', label: 'مدير مركز' },
+  { value: 'central_operations', label: 'العمليات المركزية' },
+  { value: 'governorate_police', label: 'شرطة المحافظة' },
+  { value: 'center', label: 'المركز' },
   { value: 'officer', label: 'ضابط' },
-  { value: 'judicial', label: 'ضابط قضائية' },
-  { value: 'admin', label: 'مسؤول' },
-  { value: 'user', label: 'عنصر' },
+  { value: 'source', label: 'مصدر' },
   { value: 'banned', label: 'محظور' },
 ];
 
@@ -202,22 +200,20 @@ export const UsersPanel: React.FC<UsersPanelProps> = ({
                   </td>
                   <td className="p-3">
                     <div className={`px-2 py-1 rounded-lg text-[10px] font-bold border w-fit ${
-                      user.role === 'officer' ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' :
-                      user.role === 'judicial' ? 'bg-teal-900/20 text-teal-400 border-teal-900/50' :
-                      user.role && (user.role.includes('admin') || user.role === 'super_admin') ? 'bg-purple-900/20 text-purple-400 border-purple-900/50' :
-                      user.role === 'banned' ? 'bg-red-900/20 text-red-400 border-red-900/50' :
-                      'bg-slate-800 text-slate-400 border-slate-700'}`}>
-                      {user.role === 'super_admin' ? 'قائد عام' :
-                       user.role === 'governorate_admin' ? 'مدير محافظة' :
-                       user.role === 'center_admin' ? 'مدير مركز' :
-                       user.role === 'officer' ? 'ضابط' :
-                       user.role === 'judicial' ? 'قضائية' :
-                       user.role === 'admin' ? 'مسؤول' :
-                       user.role === 'banned' ? 'محظور' : 'عنصر'}
+                       user.role === 'officer' ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' :
+                       ['central_operations', 'governorate_police', 'center'].includes(user.role) ? 'bg-purple-900/20 text-purple-400 border-purple-900/50' :
+                       user.role === 'banned' ? 'bg-red-900/20 text-red-400 border-red-900/50' :
+                       'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                       {user.role === 'central_operations' ? 'العمليات المركزية' :
+                        user.role === 'governorate_police' ? 'شرطة المحافظة' :
+                        user.role === 'center' ? 'المركز' :
+                        user.role === 'officer' ? 'ضابط' :
+                        user.role === 'source' ? 'مصدر' :
+                        user.role === 'banned' ? 'محظور' : 'عنصر'}
                     </div>
                   </td>
                   <td className="p-3 text-slate-400 text-xs">
-                    {user.role === 'super_admin' ? (
+                    {user.role === 'central_operations' ? (
                       <span className="text-purple-400 font-bold text-[10px] bg-purple-900/20 px-2 py-1 rounded">جميع المحافظات</span>
                     ) : (
                       <div className="flex flex-col gap-0.5">
