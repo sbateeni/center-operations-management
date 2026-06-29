@@ -269,6 +269,7 @@ export default function App() {
             onSendDispatch={handleSendDispatchOrder}
             showFullLogs={showFullLogs}
             closeFullLogs={() => setShowFullLogs(false)}
+            onLocateLogUser={locateLogUser}
             showCampaigns={showCampaigns}
             closeCampaigns={() => setShowCampaigns(false)}
             activeCampaign={activeCampaign}

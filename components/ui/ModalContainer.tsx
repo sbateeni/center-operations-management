@@ -186,6 +186,7 @@ export const ModalContainer: React.FC<ModalContainerProps> = ({
         isOpen={showFullLogs}
         onClose={closeFullLogs}
         userRole={userRole}
+        onLocateUser={onLocateLogUser}
       />
 
       <CampaignsModal 
