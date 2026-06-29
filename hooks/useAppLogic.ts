@@ -106,9 +106,11 @@ export function useAppLogic(isSourceMode: boolean = false) {
   };
 
   const locateSOSUser = () => {
-      if (distressedUser && distressedUser.lat && distressedUser.lng) {
-          setFlyToTarget({ lat: distressedUser.lat, lng: distressedUser.lng, zoom: 17, timestamp: Date.now(), showPulse: true });
-      }
+      if (!distressedUser) return;
+      const lat = distressedUser.lat ?? 0;
+      const lng = distressedUser.lng ?? 0;
+      if (lat === 0 && lng === 0) return;
+      setFlyToTarget({ lat, lng, zoom: 17, timestamp: Date.now(), showPulse: true });
   };
 
   const handleToggleSOS = () => {
