@@ -153,6 +153,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setMessage(null);
+    try {
+      const { error } = await auth.signInWithProvider('google');
+      if (error) throw new Error(error.message || 'فشل بدء تسجيل الدخول بجوجل');
+      // عند النجاح ستتم إعادة التوجيه إلى مزود Google من Supabase
+    } catch (err: unknown) {
+      const errorText = err instanceof Error ? err.message : 'حدث خطأ';
+      setMessage({ type: 'error', text: errorText });
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.backgroundGlow} className="animate-breathe"></div>
@@ -247,6 +261,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
             {loading ? <Loader2 className="animate-spin" /> : 'دخول النظام'}
           </button>
         </form>
+
+        <div style={{ marginTop: '8px' }}>
+          <button
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            style={{ ...styles.button, backgroundColor: '#ea4335' }}
+          >
+            {loading ? <Loader2 className="animate-spin" /> : 'الدخول بحساب Google'}
+          </button>
+        </div>
 
         <div style={{ textAlign: 'center' }}>
           <button 

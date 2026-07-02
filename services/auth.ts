@@ -57,4 +57,16 @@ export const auth = {
     const { data, error } = await supabase.auth.getUser();
     return { user: data.user, error };
   }
+  ,
+
+  async signInWithProvider(provider: string) {
+    // Starts an OAuth sign-in flow (redirects to provider)
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    return { data, error };
+  }
 };
