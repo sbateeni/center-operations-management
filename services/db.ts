@@ -5,6 +5,7 @@ export { logsApi } from './logs';
 export { assignmentsApi } from './assignments';
 export { campaignsApi } from './campaigns';
 export { accessCodesApi } from './accessCodes';
+export { geofenceApi } from './geofence';
 
 import { notesDb } from './notes-db';
 import { profiles } from './profiles';
@@ -12,6 +13,7 @@ import { logsApi } from './logs';
 import { assignmentsApi } from './assignments';
 import { campaignsApi } from './campaigns';
 import { accessCodesApi } from './accessCodes';
+import { geofenceApi } from './geofence';
 
 export const db = {
   syncPendingNotes: notesDb.syncPending.bind(notesDb),
@@ -39,4 +41,10 @@ export const db = {
   revokeAccessCode: accessCodesApi.revoke.bind(accessCodesApi),
   renewAccessCode: accessCodesApi.renew.bind(accessCodesApi),
   getAllAccessCodes: accessCodesApi.getAll.bind(accessCodesApi),
+  getGeofenceZones: geofenceApi.getAll.bind(geofenceApi),
+  createGeofenceZone: geofenceApi.create.bind(geofenceApi),
+  updateGeofenceZone: geofenceApi.update.bind(geofenceApi),
+  deleteGeofenceZone: geofenceApi.remove.bind(geofenceApi),
+  getGeofenceEvents: geofenceApi.getEvents.bind(geofenceApi),
+  logGeofenceEvent: geofenceApi.logEvent.bind(geofenceApi),
 };

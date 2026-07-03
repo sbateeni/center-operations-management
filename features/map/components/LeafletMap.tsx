@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { MapNote, RouteData, MapUser } from '../../../types';
+import { MapNote, RouteData, MapUser, GeofenceZone } from '../../../types';
 import { useMapInstance } from '../../../hooks/map/useMapInstance';
 import { useMapTiles } from '../../../hooks/map/useMapTiles';
 import { useMapMarkers } from '../../../hooks/map/useMapMarkers';
 import { useMapUsers } from '../../../hooks/map/useMapUsers';
 import { useMapRoutes } from '../../../hooks/map/useMapRoutes';
+import { useMapGeofence } from '../../../hooks/map/useMapGeofence';
 
 declare global {
   interface Window {
@@ -35,6 +36,11 @@ interface LeafletMapProps {
   currentUserId?: string;
   userRole?: string | null;
   userGovernorate?: string | null;
+  geofenceZones?: GeofenceZone[];
+  onGeofenceEvent?: (zone: GeofenceZone, eventType: 'enter' | 'exit') => void;
+  isDrawingPolygon?: boolean;
+  drawingPolygonPoints?: { lat: number; lng: number }[];
+  drawingPolygonColor?: string;
 }
 
 export const LeafletMap: React.FC<LeafletMapProps> = ({
@@ -58,7 +64,12 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   onDispatch,
   currentUserId,
   userRole,
-  userGovernorate
+  userGovernorate,
+  geofenceZones = [],
+  onGeofenceEvent,
+  isDrawingPolygon = false,
+  drawingPolygonPoints = [],
+  drawingPolygonColor = '#10b981',
 }) => {
   // 1. Initialize Map
   const { mapContainerRef, mapInstanceRef } = useMapInstance(onMapClick);
@@ -91,6 +102,10 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 
   // 5. Manage Routes
   useMapRoutes(mapInstanceRef, currentRoute, secondaryRoute);
+
+  // 6. Manage Geofence Zones
+  useMapGeofence(mapInstanceRef, geofenceZones, userLocation, currentUserId, '', onGeofenceEvent,
+    isDrawingPolygon, drawingPolygonPoints, drawingPolygonColor);
 
   return <div ref={mapContainerRef} className="w-full h-full bg-slate-900 outline-none" />;
 };

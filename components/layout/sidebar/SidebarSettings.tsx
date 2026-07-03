@@ -1,16 +1,17 @@
 import React from 'react';
-import { LayoutDashboard, Settings, LogOut, Briefcase } from 'lucide-react';
+import { LayoutDashboard, Settings, LogOut, Briefcase, Hexagon } from 'lucide-react';
 
 interface SidebarSettingsProps {
   isAdmin: boolean;
   onOpenDashboard: () => void;
   onOpenSettings: () => void;
   onOpenCampaigns: () => void;
+  onOpenGeofence: () => void;
   onLogout: () => void;
 }
 
 export const SidebarSettings: React.FC<SidebarSettingsProps> = ({
-  isAdmin, onOpenDashboard, onOpenSettings, onOpenCampaigns, onLogout,
+  isAdmin, onOpenDashboard, onOpenSettings, onOpenCampaigns, onOpenGeofence, onLogout,
 }) => (
   <div className="p-2 space-y-2">
     <h3 className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-2">الإعدادات</h3>
@@ -25,9 +26,14 @@ export const SidebarSettings: React.FC<SidebarSettingsProps> = ({
       </button>
     </div>
     {isAdmin && (
-      <button onClick={onOpenCampaigns} className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-yellow-500 border border-slate-700 py-3 rounded-xl text-xs font-bold transition-all">
-        <Briefcase size={16} /> مركز المهام
-      </button>
+      <>
+        <button onClick={onOpenCampaigns} className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-yellow-500 border border-slate-700 py-3 rounded-xl text-xs font-bold transition-all">
+          <Briefcase size={16} /> مركز المهام
+        </button>
+        <button onClick={onOpenGeofence} className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-green-400 border border-slate-700 py-3 rounded-xl text-xs font-bold transition-all">
+          <Hexagon size={16} /> النطاق الجغرافي
+        </button>
+      </>
     )}
     <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 text-red-400 hover:bg-red-900/10 py-3 rounded-xl text-xs font-bold transition-all">
       <LogOut size={16} /> تسجيل الخروج

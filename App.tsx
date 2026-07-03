@@ -1,8 +1,8 @@
 
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, useRef } from 'react';
 import { useAppLogic } from './hooks/useAppLogic';
 import { SourceSession } from './types';
-import { Monitor, Siren, Users, Clock } from 'lucide-react';
+import { Monitor, Siren, Users, Clock, Hexagon } from 'lucide-react';
 import { isAdmin } from './constants/roles';
 
 // Components
@@ -10,6 +10,7 @@ import { ModalContainer } from './components/ui/ModalContainer';
 import { Sidebar } from './components/layout/Sidebar';
 import { MapControls } from './features/map/components/MapControls';
 import { DatabaseSetupModal } from './components/ui/DatabaseSetupModal';
+import { GeofenceModal } from './features/geofence/GeofenceModal';
 import { AuthPage } from './pages/AuthPage';
 import { PendingApproval } from './pages/PendingApproval';
 import { LoadingScreen } from './components/ui/LoadingScreen';
@@ -46,10 +47,35 @@ export default function App() {
     showModal, tempCoords, userNoteInput, setUserNoteInput, isEditingNote,
     handleMapClick, handleEditNote, handleSaveNote, closeModal,
     setTargetUserFilter,
-    activeCampaign, handleStartCampaign, handleUpdateCampaign
+    activeCampaign, handleStartCampaign, handleUpdateCampaign,
+    geofenceZones, showGeofence, setShowGeofence,
+    handleGeofenceEvent,
+    handleCreateGeofenceZone,
+    handleUpdateGeofenceZone,
+    handleDeleteGeofenceZone,
+    handleFlyToGeofenceZone,
+    isDrawingPolygon, pendingPolygonPoints, pendingPolygonMeta, editingPolygonId,
+    handlePolygonMapClick,
+    handleSavePolygon,
+    handleCancelPolygon,
+    handleEditPolygon,
   } = logic;
 
   const isOpsManager = isAdmin(userRole);
+
+  const handleMapClickWrapper = isDrawingPolygon ? handlePolygonMapClick : handleMapClick;
+
+  // --- POLYGON DRAWING CURSOR ---
+  const bodyCursorRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (isDrawingPolygon) {
+      bodyCursorRef.current = document.body.style.cursor;
+      document.body.style.cursor = 'crosshair';
+    } else if (bodyCursorRef.current !== null) {
+      document.body.style.cursor = bodyCursorRef.current;
+      bodyCursorRef.current = null;
+    }
+  }, [isDrawingPolygon]);
 
   // --- SOURCE SESSION AUTO-EXPIRY ---
   useEffect(() => {
@@ -132,8 +158,9 @@ export default function App() {
           onAcceptAssignment={handleAcceptAssignment}
           hasActiveRoute={!!currentRoute || !!secondaryRoute}
           onClearRoute={handleStopNavigation}
-          onExpandLogs={() => setShowFullLogs(true)}
-      />
+            onExpandLogs={() => setShowFullLogs(true)}
+            onOpenGeofence={() => setShowGeofence(true)}
+        />
 
       {/* 2. Main Content Area */}
       <div className="flex-1 relative h-full overflow-hidden">
@@ -188,7 +215,7 @@ export default function App() {
             notes={notes} 
             selectedNote={selectedNote}
             setSelectedNote={setSelectedNote}
-            onMapClick={handleMapClick}
+            onMapClick={handleMapClickWrapper}
             flyToTarget={flyToTarget}
             tempMarkerCoords={tempCoords}
             userLocation={userLocation}
@@ -204,6 +231,11 @@ export default function App() {
             currentUserId={userProfile?.id}
             userRole={userRole}
             userGovernorate={userProfile?.governorate}
+            geofenceZones={geofenceZones}
+            onGeofenceEvent={handleGeofenceEvent}
+            isDrawingPolygon={isDrawingPolygon}
+            drawingPolygonPoints={pendingPolygonPoints}
+            drawingPolygonColor={pendingPolygonMeta?.color || '#10b981'}
           />
         </Suspense>
 
@@ -235,6 +267,30 @@ export default function App() {
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
         />
+
+        {/* Polygon Drawing HUD */}
+        {isDrawingPolygon && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[2000] flex flex-col items-center gap-2 animate-fade-down" dir="rtl">
+            <div className="bg-slate-900/90 backdrop-blur-xl border border-green-500/30 rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-4">
+              <div className="flex items-center gap-2 text-green-400">
+                <Hexagon size={18} />
+                <span className="text-xs font-bold">{pendingPolygonMeta?.name || 'رسم مضلع'}</span>
+              </div>
+              <div className="text-[10px] text-slate-400 font-mono">{pendingPolygonPoints.length} نقاط</div>
+              <div className="flex items-center gap-2 pr-3 border-r border-slate-700">
+                <button onClick={handleSavePolygon} disabled={pendingPolygonPoints.length < 3} className="px-4 py-1.5 bg-green-600 hover:bg-green-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-bold rounded-lg transition-all">
+                  حفظ
+                </button>
+                <button onClick={handleCancelPolygon} className="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-lg transition-all">
+                  إلغاء
+                </button>
+              </div>
+            </div>
+            <div className="text-[10px] text-slate-500 bg-slate-900/70 backdrop-blur px-4 py-1.5 rounded-full border border-slate-700/50">
+              انقر على الخريطة لإضافة نقاط — 3 نقاط على الأقل
+            </div>
+          </div>
+        )}
 
         {/* Tactical Hub Toggle (Dubai Style) */}
         {isOpsManager && (
@@ -302,6 +358,18 @@ export default function App() {
 
         {/* DB Setup Warning */}
         {showDatabaseFix && <DatabaseSetupModal onClose={() => setShowDatabaseFix(false)} />}
+
+        {/* Geofence Modal */}
+        <GeofenceModal
+          isOpen={showGeofence}
+          onClose={() => setShowGeofence(false)}
+          zones={geofenceZones}
+          onCreateZone={handleCreateGeofenceZone}
+          onUpdateZone={handleUpdateGeofenceZone}
+          onDeleteZone={handleDeleteGeofenceZone}
+          onFlyToZone={handleFlyToGeofenceZone}
+          onEditPolygon={handleEditPolygon}
+        />
       </div>
     </div>
   );

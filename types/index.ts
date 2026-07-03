@@ -5,3 +5,4 @@ export type { Assignment } from './assignment';
 export type { LogEntry } from './log';
 export type { AccessCode, SourceSession } from './source';
 export type { CampaignStatus, ActiveCampaign } from './campaign';
+export type { GeofenceZone, GeofenceEvent } from './geofence';

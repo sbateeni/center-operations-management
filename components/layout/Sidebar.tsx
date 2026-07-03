@@ -49,6 +49,7 @@ interface SidebarProps {
   canManageContent?: boolean;
   canViewLogs?: boolean;
   userGovernorate?: string | null;
+  onOpenGeofence?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -59,7 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isSatellite, setIsSatellite, onLocateUser, isLocating, assignments, onAcceptAssignment,
   hasActiveRoute, onClearRoute,
   onExpandLogs,
-  canManageContent, canViewLogs,
+  canManageContent, canViewLogs, onOpenGeofence,
 }) => {
   const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
   const [noteSearchQuery, setNoteSearchQuery] = useState('');
@@ -126,6 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onOpenDashboard={onOpenDashboard}
             onOpenSettings={onOpenSettings}
             onOpenCampaigns={onOpenCampaigns}
+            onOpenGeofence={() => onOpenGeofence?.()}
             onLogout={onLogout}
           />
         );

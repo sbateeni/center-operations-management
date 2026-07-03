@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapNote, MapUser, UnitStatus, ActiveCampaign, UserProfile } from '../types';
+import { MapNote, MapUser, UnitStatus, ActiveCampaign, UserProfile, GeofenceZone } from '../types';
 import { db } from '../services/db';
 import { supabase } from '../services/supabase';
 import { searchPlace } from '../services/geocoding';
@@ -68,6 +68,12 @@ export function useAppLogic(isSourceMode: boolean = false) {
   const [dispatchTargetLocation, setDispatchTargetLocation] = useState<MapNote | null>(null);
 
   const [activeCampaign, setActiveCampaign] = useState<ActiveCampaign | null>(null);
+  const [geofenceZones, setGeofenceZones] = useState<GeofenceZone[]>([]);
+  const [showGeofence, setShowGeofence] = useState(false);
+  const [isDrawingPolygon, setIsDrawingPolygon] = useState(false);
+  const [pendingPolygonPoints, setPendingPolygonPoints] = useState<{lat: number; lng: number}[]>([]);
+  const [pendingPolygonMeta, setPendingPolygonMeta] = useState<{name: string; color: string} | null>(null);
+  const [editingPolygonId, setEditingPolygonId] = useState<string | null>(null);
 
   const distressedUser = onlineUsers.find(u => u.isSOS && u.id !== session?.user?.id);
 
@@ -95,6 +101,124 @@ export function useAppLogic(isSourceMode: boolean = false) {
       const channel = supabase.channel('campaigns').on('postgres_changes', { event: '*', schema: 'public', table: 'campaigns' }, fetchCampaign).subscribe();
       return () => { supabase.removeChannel(channel); };
   }, [session]);
+
+  // Geofence management
+  useEffect(() => {
+    if (!hasAccess) return;
+    db.getGeofenceZones().then(setGeofenceZones).catch(() => {});
+    const channel = supabase.channel('geofence-zones').on('postgres_changes', { event: '*', schema: 'public', table: 'geofence_zones' }, () => {
+      db.getGeofenceZones().then(setGeofenceZones).catch(() => {});
+    }).subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [hasAccess]);
+
+  const handleGeofenceEvent = async (zone: GeofenceZone, eventType: 'enter' | 'exit') => {
+    if (!session?.user?.id || !userProfile) return;
+    const label = eventType === 'enter' ? 'دخول' : 'خروج';
+    db.createLogEntry({
+      message: `🚧 ${label} منطقة "${zone.name}"`,
+      type: 'alert',
+      userId: session.user.id,
+      timestamp: Date.now(),
+      governorate: userProfile.governorate,
+      center: userProfile.center,
+      lat: userLocation?.lat ?? null,
+      lng: userLocation?.lng ?? null,
+    }).catch(() => {});
+    db.logGeofenceEvent({
+      zoneId: zone.id!, zoneName: zone.name,
+      userId: session.user.id, userName: userProfile.username || 'مستخدم',
+      eventType, timestamp: Date.now(),
+    }).catch(() => {});
+  };
+
+  const handleCreateGeofenceZone = async (zone: Omit<GeofenceZone, 'id' | 'createdAt'>) => {
+    if (zone.type === 'polygon') {
+      setPendingPolygonMeta({ name: zone.name, color: zone.color });
+      setIsDrawingPolygon(true);
+      setPendingPolygonPoints([]);
+      setShowGeofence(false);
+      return;
+    }
+    await db.createGeofenceZone(zone);
+  };
+
+  const handlePolygonMapClick = async (lat: number, lng: number) => {
+    if (!isDrawingPolygon) return;
+    const points = pendingPolygonPoints;
+    if (points.length >= 3) {
+      const first = points[0];
+      const dist = Math.sqrt((lat - first.lat) ** 2 + (lng - first.lng) ** 2) * 111000;
+      if (dist < 30) {
+        await handleSavePolygon();
+        return;
+      }
+    }
+    setPendingPolygonPoints(prev => [...prev, { lat, lng }]);
+  };
+
+  const handleSavePolygon = async () => {
+    if (!pendingPolygonMeta || pendingPolygonPoints.length < 3) {
+      alert('تحتاج على الأقل 3 نقاط لتشكيل مضلع');
+      return;
+    }
+    if (editingPolygonId) {
+      await db.updateGeofenceZone(editingPolygonId, {
+        points: pendingPolygonPoints,
+        lat: pendingPolygonPoints[0].lat,
+        lng: pendingPolygonPoints[0].lng,
+      });
+      setGeofenceZones(prev => prev.map(z =>
+        z.id === editingPolygonId
+          ? { ...z, points: pendingPolygonPoints, lat: pendingPolygonPoints[0].lat, lng: pendingPolygonPoints[0].lng }
+          : z
+      ));
+    } else {
+      await db.createGeofenceZone({
+        name: pendingPolygonMeta.name,
+        type: 'polygon',
+        lat: pendingPolygonPoints[0].lat,
+        lng: pendingPolygonPoints[0].lng,
+        points: pendingPolygonPoints,
+        color: pendingPolygonMeta.color,
+        isActive: true,
+      });
+    }
+    setIsDrawingPolygon(false);
+    setPendingPolygonPoints([]);
+    setPendingPolygonMeta(null);
+    setEditingPolygonId(null);
+  };
+
+  const handleCancelPolygon = () => {
+    setIsDrawingPolygon(false);
+    setPendingPolygonPoints([]);
+    setPendingPolygonMeta(null);
+    setEditingPolygonId(null);
+  };
+
+  const handleEditPolygon = (zone: GeofenceZone) => {
+    if (zone.type !== 'polygon' || !zone.points) return;
+    setEditingPolygonId(zone.id);
+    setPendingPolygonMeta({ name: zone.name, color: zone.color });
+    setPendingPolygonPoints(zone.points);
+    setIsDrawingPolygon(true);
+  };
+
+  const handleUpdateGeofenceZone = async (id: string, updates: Partial<GeofenceZone>) => {
+    await db.updateGeofenceZone(id, updates);
+    setGeofenceZones(prev => prev.map(z => z.id === id ? { ...z, ...updates } : z));
+  };
+
+  const handleDeleteGeofenceZone = async (id: string) => {
+    await db.deleteGeofenceZone(id);
+    setGeofenceZones(prev => prev.filter(z => z.id !== id));
+  };
+
+  const handleFlyToGeofenceZone = (zone: GeofenceZone) => {
+    setFlyToTarget({ lat: zone.lat, lng: zone.lng, zoom: 13, timestamp: Date.now() });
+    setShowGeofence(false);
+  };
 
   const locateUser = () => {
     setIsLocating(true);
@@ -260,6 +384,16 @@ export function useAppLogic(isSourceMode: boolean = false) {
         if (activeCampaign?.id) db.endCampaign(activeCampaign.id);
     }, handleUpdateCampaign: (_name: string, _participants: Set<string>, t: Set<string>) => {
         if (activeCampaign?.id) db.updateCampaign(activeCampaign.id, { targetIds: t });
-    }
+    },
+    geofenceZones, showGeofence, setShowGeofence,
+    handleGeofenceEvent,
+    handleCreateGeofenceZone,
+    handleUpdateGeofenceZone,
+    handleDeleteGeofenceZone,
+    handleFlyToGeofenceZone,
+    isDrawingPolygon, pendingPolygonPoints, pendingPolygonMeta,
+    handlePolygonMapClick,
+    handleSavePolygon,
+    handleCancelPolygon,
   };
 }
