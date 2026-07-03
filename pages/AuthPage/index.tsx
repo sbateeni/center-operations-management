@@ -21,8 +21,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   backgroundGlow: {
     position: 'absolute',
-    width: '600px',
-    height: '600px',
+    width: 'min(600px, 150vw)',
+    height: 'min(600px, 150vw)',
     background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, rgba(15,23,42,0) 70%)',
     top: '50%',
     left: '50%',
@@ -31,16 +31,18 @@ const styles: { [key: string]: React.CSSProperties } = {
   card: {
     backgroundColor: '#0f172a',
     borderRadius: '24px',
-    padding: '40px',
+    padding: 'clamp(20px, 5vw, 40px)',
     width: '100%',
     maxWidth: '420px',
+    maxHeight: '95dvh',
+    overflowY: 'auto',
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 60px rgba(59,130,246,0.05)',
     border: '1px solid rgba(255,255,255,0.05)',
     position: 'relative',
     zIndex: 10,
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: 'clamp(12px, 2.5vw, 20px)',
     animation: 'fadeSlideUp 0.6s ease-out forwards'
   },
   logoBox: {
@@ -213,7 +215,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
     <div style={styles.container}>
       <div style={styles.backgroundGlow} className="animate-breathe"></div>
       {/* Secondary glow */}
-      <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)', top: '30%', left: '30%', pointerEvents: 'none' }} className="animate-breathe" />
+      <div style={{ position: 'absolute', width: 'min(400px, 100vw)', height: 'min(400px, 100vw)', background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)', top: '30%', left: '30%', pointerEvents: 'none' }} className="animate-breathe" />
       <div style={styles.card}>
         <div style={styles.logoBox}>
           <ShieldCheck size={35} color="white" />

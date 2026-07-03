@@ -71,7 +71,7 @@ export const OperationsLog: React.FC<OperationsLogProps> = ({ onExpand, onLocate
 
   return (
     <div 
-      className={`absolute bottom-0 left-0 right-0 z-[1000] glass-panel border-t h-16 flex items-center px-6 font-mono text-xs overflow-hidden cursor-pointer transition-all group shadow-[0_-10px_40px_rgba(0,0,0,0.8)] ${
+      className={`absolute bottom-0 left-0 right-0 z-[1000] glass-panel border-t h-12 md:h-16 flex items-center px-3 md:px-6 font-mono text-[10px] md:text-xs overflow-hidden cursor-pointer transition-all group shadow-[0_-10px_40px_rgba(0,0,0,0.8)] ${
         hasAlert 
           ? 'bg-red-900/40 border-red-500/50 animate-pulse' 
           : 'hover:bg-slate-900/90 border-white/5'
@@ -111,8 +111,8 @@ export const OperationsLog: React.FC<OperationsLogProps> = ({ onExpand, onLocate
           {logs.length === 0 && <span className="text-slate-600 italic tracking-widest animate-pulse">جاري استلام البيانات من الأقمار الصناعية...</span>}
        </div>
 
-      <div className="mr-6 text-slate-500 group-hover:text-blue-400 transition-all p-2 bg-slate-900/50 rounded-xl border border-white/5">
-          <Maximize2 size={18} />
+      <div className="mr-3 md:mr-6 text-slate-500 group-hover:text-blue-400 transition-all p-2.5 bg-slate-900/50 rounded-xl border border-white/5 cursor-pointer">
+          <Maximize2 size={16} />
       </div>
     </div>
   );

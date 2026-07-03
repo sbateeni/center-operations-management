@@ -181,14 +181,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={onLocateUser}
             disabled={isLocating}
-            className="w-7 h-7 bg-slate-800 hover:bg-blue-600/20 text-slate-400 hover:text-blue-400 rounded-lg flex items-center justify-center transition-all"
+            className="w-10 h-10 md:w-7 md:h-7 bg-slate-800 hover:bg-blue-600/20 text-slate-400 hover:text-blue-400 rounded-lg flex items-center justify-center transition-all"
             title="موقعي"
           >
-            {isLocating ? <Loader2 size={14} className="animate-spin" /> : <Navigation size={14} />}
+            {isLocating ? <Loader2 size={18} className="animate-spin" /> : <Navigation size={18} />}
           </button>
           <button
             onClick={() => setIsSatellite(!isSatellite)}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+            className={`w-10 h-10 md:w-7 md:h-7 rounded-lg flex items-center justify-center transition-all ${
               isSatellite ? 'bg-blue-600/20 text-blue-400' : 'bg-slate-800 text-slate-400 hover:text-white'
             }`}
             title="نمط الخريطة"

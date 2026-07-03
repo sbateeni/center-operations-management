@@ -12,6 +12,12 @@ html, body, #root {
   color: white;
   font-family: 'Tajawal', ui-sans-serif, system-ui, sans-serif;
   direction: rtl;
+  /* iOS safe area */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .leaflet-container {
@@ -125,6 +131,11 @@ html, body, #root {
 }
 .animate-flash {
   animation: flashHighlight 2s ease-out forwards;
+}
+
+/* Safe area padding for bottom bars */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Progress bar shimmer */
