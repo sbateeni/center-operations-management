@@ -274,7 +274,7 @@ export default function App() {
             <div className="bg-slate-900/90 backdrop-blur-xl border border-green-500/30 rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-4">
               <div className="flex items-center gap-2 text-green-400">
                 <Hexagon size={18} />
-                <span className="text-xs font-bold">{pendingPolygonMeta?.name || 'رسم مضلع'}</span>
+                <span className="text-xs font-bold">{editingPolygonId ? 'تعديل' : 'رسم'} {pendingPolygonMeta?.name || 'مضلع'}</span>
               </div>
               <div className="text-[10px] text-slate-400 font-mono">{pendingPolygonPoints.length} نقاط</div>
               <div className="flex items-center gap-2 pr-3 border-r border-slate-700">
