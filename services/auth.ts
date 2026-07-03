@@ -2,15 +2,18 @@
 import { supabase } from './supabase';
 
 export const auth = {
-  async signUp(email: string, password: string, username: string) {
+  async signUp(email: string, password: string, username: string, governorate?: string, center?: string, fullName?: string) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          username: username,
+          username,
+          full_name: fullName || '',
+          governorate: governorate || '',
+          center: center || '',
         },
-        emailRedirectTo: window.location.origin, // Ensure redirection comes back to the app
+        emailRedirectTo: window.location.origin,
       },
     });
     return { data, error };
@@ -68,5 +71,16 @@ export const auth = {
       },
     });
     return { data, error };
+  },
+
+  async adminResetPassword(userId: string, newPassword: string) {
+    // Requires VITE_SUPABASE_SERVICE_KEY in environment
+    const admin = await import('../services/supabaseAdmin').then(m => m.supabaseAdmin);
+    if (!admin) {
+      return { data: null, error: { message: 'مفتاح الخدمة غير مضبط. أضف VITE_SUPABASE_SERVICE_KEY في الإعدادات.' } };
+    }
+    const { data, error } = await admin.auth.admin.updateUserById(userId, { password: newPassword });
+    if (error) return { data: null, error: { message: 'فشل تغيير كلمة المرور: ' + error.message } };
+    return { data, error: null };
   }
 };

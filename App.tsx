@@ -10,6 +10,7 @@ import { ModalContainer } from './components/ui/ModalContainer';
 import { Sidebar } from './components/layout/Sidebar';
 import { MapControls } from './features/map/components/MapControls';
 import { DatabaseSetupModal } from './components/ui/DatabaseSetupModal';
+import { useNotifications } from './hooks/useNotifications';
 import { GeofenceModal } from './features/geofence/GeofenceModal';
 import { AuthPage } from './pages/AuthPage';
 import { PendingApproval } from './pages/PendingApproval';
@@ -36,7 +37,7 @@ export default function App() {
     onlineUsers, userLocation, distressedUser, handleLocateSOSUser, locateLogUser, allProfiles,
     currentRoute, secondaryRoute, handleNavigateToNote, handleStopNavigation,
     sidebarOpen, setSidebarOpen, isSatellite, setIsSatellite, mapProvider, setMapProvider,
-    searchQuery, setSearchQuery, isSearching, handleSearch, flyToTarget, locateUser, requestLocation, permissionDenied, isLocating,
+    searchQuery, setSearchQuery, isSearching, handleSearch, flyToTarget, setFlyToTarget, locateUser, requestLocation, permissionDenied, isLocating,
     selectedNote, setSelectedNote, flyToNote, handleDeleteNote,
     showDashboard, setShowDashboard, showSettings, setShowSettings, showFullLogs, setShowFullLogs,
     showCampaigns, setShowCampaigns,
@@ -76,6 +77,9 @@ export default function App() {
       bodyCursorRef.current = null;
     }
   }, [isDrawingPolygon]);
+
+  // --- PUSH NOTIFICATIONS ---
+  useNotifications(userProfile?.id, userRole, onlineUsers);
 
   // --- SOURCE SESSION AUTO-EXPIRY ---
   useEffect(() => {
@@ -160,6 +164,7 @@ export default function App() {
           onClearRoute={handleStopNavigation}
             onExpandLogs={() => setShowFullLogs(true)}
             onOpenGeofence={() => setShowGeofence(true)}
+           onLocateCoords={(lat, lng) => setFlyToTarget({ lat, lng, zoom: 17, timestamp: Date.now(), showPulse: true })}
         />
 
       {/* 2. Main Content Area */}

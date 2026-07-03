@@ -358,7 +358,7 @@ export function useAppLogic(isSourceMode: boolean = false) {
     onlineUsers, userLocation, distressedUser, handleLocateSOSUser: locateSOSUser, locateLogUser, allProfiles,
     currentRoute, secondaryRoute, isRouting, handleNavigateToNote, handleStopNavigation,
     sidebarOpen, setSidebarOpen, isSatellite, setIsSatellite, mapProvider, setMapProvider,
-    searchQuery, setSearchQuery, isSearching, handleSearch, flyToTarget, locateUser, requestLocation, permissionDenied, isLocating,
+    searchQuery, setSearchQuery, isSearching, handleSearch, flyToTarget, setFlyToTarget, locateUser, requestLocation, permissionDenied, isLocating,
     selectedNote, setSelectedNote, flyToNote, handleDeleteNote: deleteNote,
     showDashboard, setShowDashboard, showSettings, setShowSettings, showFullLogs, setShowFullLogs,
     showCampaigns, setShowCampaigns,

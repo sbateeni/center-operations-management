@@ -53,11 +53,12 @@ export const UserTable: React.FC<UserTableProps> = ({
                      {isBanned ? <Ban size={18} /> : user.username.charAt(0).toUpperCase()}
                    </div>
                    <div>
-                     <div className="font-medium text-white flex items-center gap-2">
-                        {user.username}
-                        {isMe && <span className="text-[10px] bg-slate-700 px-1.5 rounded text-slate-300">أنت</span>}
-                     </div>
-                    <div className="text-slate-500 text-xs">{user.email || 'غير متوفر'}</div>
+                      <div className="font-medium text-white flex items-center gap-2">
+                         {user.username}
+                         {isMe && <span className="text-[10px] bg-slate-700 px-1.5 rounded text-slate-300">أنت</span>}
+                      </div>
+                      {user.full_name && <div className="text-slate-400 text-[11px]">{user.full_name}</div>}
+                     <div className="text-slate-500 text-xs">{user.email || 'غير متوفر'}</div>
                    </div>
                  </div>
                  

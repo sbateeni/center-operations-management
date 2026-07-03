@@ -83,6 +83,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                 {user.username}
                 {isBanned && <span className="text-[10px] bg-red-900/30 text-red-400 px-2 py-0.5 rounded-full border border-red-900/50">محظور</span>}
               </h3>
+              {user.full_name && <p className="text-xs text-slate-400">{user.full_name}</p>}
               <p className="text-xs text-slate-400 flex items-center gap-1.5">
                 <Mail size={10} /> {user.email || 'بريد غير متوفر'}
               </p>

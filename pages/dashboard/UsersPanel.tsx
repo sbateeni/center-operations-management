@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Wifi, WifiOff, MapPin, Building2, CheckCircle2, Settings, Ban, Eye, X } from 'lucide-react';
+import { Search, Wifi, WifiOff, MapPin, Building2, CheckCircle2, Settings, Ban, Eye, X, KeyRound, Loader2 } from 'lucide-react';
 import { UserProfile } from '../../types';
+import { auth } from '../../services/auth';
 
 interface UsersPanelProps {
   users: UserProfile[];
@@ -36,6 +37,9 @@ export const UsersPanel: React.FC<UsersPanelProps> = ({
   const [roleFilter, setRoleFilter] = useState('');
   const [connFilter, setConnFilter] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [resettingUserId, setResettingUserId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetMsg, setResetMsg] = useState<{ id: string; type: 'success' | 'error'; text: string } | null>(null);
 
   const filtered = useMemo(() => {
     return users.filter(u => {
@@ -68,6 +72,19 @@ export const UsersPanel: React.FC<UsersPanelProps> = ({
   };
 
   const clearSelection = () => setSelectedIds(new Set());
+
+  const handleResetPassword = async (userId: string) => {
+    if (!newPassword || newPassword.length < 6) { alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return; }
+    setResetMsg(null);
+    const { error } = await auth.adminResetPassword(userId, newPassword);
+    if (error) {
+      setResetMsg({ id: userId, type: 'error', text: error.message || 'فشل تغيير كلمة المرور' });
+    } else {
+      setResetMsg({ id: userId, type: 'success', text: 'تم تغيير كلمة المرور بنجاح' });
+    }
+    setResettingUserId(null);
+    setNewPassword('');
+  };
 
   const bulkBan = () => {
     filtered.filter(u => selectedIds.has(u.id)).forEach(u => onBanUser(u));
@@ -184,7 +201,34 @@ export const UsersPanel: React.FC<UsersPanelProps> = ({
                           {user.username}
                           {isMe && <span className="text-[10px] bg-slate-700 px-1.5 rounded text-slate-300">أنت</span>}
                         </div>
+                        {user.full_name && <div className="text-slate-400 text-[10px]">{user.full_name}</div>}
                         <div className="text-slate-500 text-[11px]">{user.email || 'غير متوفر'}</div>
+                        {/* Password */}
+                        {resettingUserId === user.id ? (
+                          <div className="flex items-center gap-1 mt-1">
+                            <input
+                              type="text" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+                              placeholder="كلمة مرور جديدة (6+ أحرف)"
+                              className="w-32 bg-slate-950 border border-slate-600 rounded px-2 py-0.5 text-[10px] text-white placeholder-slate-600 focus:border-blue-500 focus:outline-none"
+                              autoFocus
+                            />
+                            <button onClick={() => handleResetPassword(user.id)} className="text-[10px] px-2 py-0.5 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold">حفظ</button>
+                            <button onClick={() => { setResettingUserId(null); setNewPassword(''); }} className="text-[10px] px-2 py-0.5 bg-slate-700 text-slate-300 rounded">إلغاء</button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => { setResettingUserId(user.id); setNewPassword(''); setResetMsg(null); }}
+                            className="mt-1 text-[9px] flex items-center gap-1 text-amber-400 hover:text-amber-300 transition-colors"
+                            title="انقر لإعادة تعيين كلمة المرور"
+                          >
+                            <KeyRound size={10} /> ●●●●●●●●
+                          </button>
+                        )}
+                        {resetMsg && resetMsg.id === user.id && (
+                          <div className={`text-[9px] mt-0.5 ${resetMsg.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                            {resetMsg.text}
+                          </div>
+                        )}
                         <button onClick={() => onFilterByUser(user.id, user.username)}
                           className="mt-1 text-[9px] flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors">
                           <Eye size={10} /> عرض النشاط

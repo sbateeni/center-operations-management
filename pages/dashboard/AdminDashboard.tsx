@@ -63,7 +63,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const toggleApproval = async (user: UserProfile) => {
     const newValue = !user.isApproved;
     setProfiles(prev => prev.map(p => p.id === user.id ? { ...p, isApproved: newValue } : p));
-    try { await db.updateProfile(user.id, { is_approved: newValue }); }
+    try {
+      await db.updateProfile(user.id, { is_approved: newValue });
+      if (newValue && user.governorate && user.center) {
+        db.ensureApprovedCenter(user.governorate, user.center).catch(() => {});
+      }
+    }
     catch { fetchData(); }
   };
 

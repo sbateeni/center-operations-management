@@ -40,6 +40,7 @@ interface SidebarProps {
   isSatellite: boolean;
   setIsSatellite: (s: boolean) => void;
   onLocateUser: () => void;
+  onLocateCoords?: (lat: number, lng: number) => void;
   isLocating: boolean;
   assignments: any[];
   onAcceptAssignment: (id: string) => void;
@@ -57,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onFlyToNote, onDeleteNote, onNavigateToNote, routeData,
   onUpdateStatus, isConnected,   userRole, onLogout, onEditNote, onOpenDashboard, onOpenSettings,
   myStatus, setMyStatus, onlineUsers, currentUserId, onOpenCampaigns, userGovernorate,
-  isSatellite, setIsSatellite, onLocateUser, isLocating, assignments, onAcceptAssignment,
+  isSatellite, setIsSatellite, onLocateUser, onLocateCoords, isLocating, assignments, onAcceptAssignment,
   hasActiveRoute, onClearRoute,
   onExpandLogs,
   canManageContent, canViewLogs, onOpenGeofence,
@@ -102,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <p className="text-xs text-slate-500">تم إخفاء بيانات الوحدات الأخرى لأسباب أمنية</p>
           </div>
         ) : (
-          <SidebarUnits onlineUsers={onlineUsers} allProfiles={allProfiles} currentUserId={currentUserId} userRole={userRole} userGovernorate={userGovernorate} />
+          <SidebarUnits onlineUsers={onlineUsers} allProfiles={allProfiles} currentUserId={currentUserId} userRole={userRole} userGovernorate={userGovernorate} onLocateUser={onLocateCoords} />
         );
       case 'notes':
         return (

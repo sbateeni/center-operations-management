@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Shield, Globe, Layers, Download, CheckCircle2, Trash2, Wrench, LogOut, Mountain, Satellite, EyeOff, Map, Copy, Plus } from 'lucide-react';
+import { X, Mail, Shield, Globe, Layers, Download, CheckCircle2, Trash2, Wrench, LogOut, Mountain, Satellite, EyeOff, Map, Copy, Plus, MapPin } from 'lucide-react';
 import { offlineMaps } from '../../services/offlineMaps';
 import { db } from '../../services/db';
 import { UserRole, AccessCode } from '../../types';
@@ -135,6 +135,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   if (typeof username !== 'string') {
       username = user?.email?.split('@')[0] || 'مستخدم';
   }
+  const fullName = user?.user_metadata?.full_name || '';
+  const userGovernorate = user?.user_metadata?.governorate || '';
+  const userCenter = user?.user_metadata?.center || '';
   
   const email = user?.email || '';
   const initialChar = username.charAt(0).toUpperCase();
@@ -168,6 +171,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <div>
                   <div className="text-white font-bold text-lg">{username}</div>
+                  {fullName && <div className="text-slate-400 text-xs">{fullName}</div>}
                   <div className="text-slate-400 text-sm flex items-center gap-1.5">
                     <Shield size={12} className={isUserOfficerOrAbove ? 'text-purple-400' : 'text-slate-500'} />
                     <span>{roleLabel}</span>
@@ -180,6 +184,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <Mail size={16} className="text-slate-500" />
                   {email}
                 </div>
+                {userGovernorate && (
+                  <div className="flex items-center gap-3 text-sm text-slate-300">
+                    <MapPin size={16} className="text-slate-500" />
+                    <span>{userGovernorate}</span>
+                  </div>
+                )}
+                {userCenter && (
+                  <div className="flex items-center gap-3 text-sm text-slate-300">
+                    <MapPin size={16} className="text-slate-500" />
+                    <span>{userCenter}</span>
+                  </div>
+                )}
               </div>
 
               <button 

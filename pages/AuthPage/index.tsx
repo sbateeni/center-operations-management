@@ -1,9 +1,10 @@
 
 import React, { useState, useId } from 'react';
-import { ShieldCheck, Mail, Lock, Check, KeyRound, User, Loader2 } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Check, KeyRound, User, Loader2, ChevronDown, MapPin } from 'lucide-react';
 import { auth } from '../../services/auth';
 import { db } from '../../services/db';
 import { SourceSession } from '../../types';
+import { palestineData } from '../../constants/palestineData';
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
@@ -108,8 +109,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
   const [email, setEmail] = useState(() => localStorage.getItem('ops_saved_email') || '');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [accessCode, setAccessCode] = useState('');
   const [rememberMe, setRememberMe] = useState(() => Boolean(localStorage.getItem('ops_saved_email')));
+  const [governorate, setGovernorate] = useState('');
+  const [center, setCenter] = useState('');
+  const [approvedCenters, setApprovedCenters] = useState<string[]>([]);
+
+  // Load approved centers for the selected governorate
+  React.useEffect(() => {
+    if (!governorate) { setApprovedCenters([]); return; }
+    db.getApprovedCentersByGovernorate(governorate).then(list => {
+      setApprovedCenters(list.map(c => c.center_name));
+    }).catch(() => {});
+  }, [governorate]);
 
   const getAuthErrorMessage = (errorMessage: string) => {
     if (errorMessage.includes('Invalid login credentials')) {
@@ -143,8 +156,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
          } else throw new Error(res.error || 'كود غير صالح');
       } else if (authMode === 'signup') {
         if (!username.trim()) throw new Error('يرجى إدخال اسم المستخدم');
-        const { data, error } = await auth.signUp(email, password, username);
+        if (!fullName.trim()) throw new Error('يرجى إدخال الاسم الرباعي');
+        if (!governorate) throw new Error('يرجى اختيار المحافظة');
+        if (!center) throw new Error('يرجى اختيار مركز الشرطة');
+        const { data, error } = await auth.signUp(email, password, username, governorate, center, fullName);
         if (error) throw new Error(getAuthErrorMessage(error.message || ''));
+        if (data?.user) {
+          db.updateProfile(data.user.id, { governorate, center, full_name: fullName }).catch(() => {});
+        }
         setMessage({ type: 'success', text: 'تم إنشاء الحساب بنجاح! يرجى تفعيل البريد الإلكتروني قبل تسجيل الدخول.' });
       } else {
         const { error } = await auth.signIn(email, password);
@@ -164,6 +183,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
       setLoading(false);
     }
   };
+
+  // Reset governorate/center when leaving signup
+  React.useEffect(() => {
+    if (authMode !== 'signup') { setGovernorate(''); setCenter(''); }
+  }, [authMode]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -203,17 +227,65 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {authMode === 'signup' && (
-            <div style={styles.inputGroup}>
-              <input 
-                type="text" 
-                placeholder="اسم المستخدم" 
-                value={username} 
-                onChange={e => setUsername(e.target.value)} 
-                style={styles.input} 
-                required 
-              />
-              <User size={18} style={{ position: 'absolute', right: '15px', top: '15px', color: '#64748b' }} />
-            </div>
+            <>
+              <div style={styles.inputGroup}>
+                <input 
+                  type="text" 
+                  placeholder="اسم المستخدم" 
+                  value={username} 
+                  onChange={e => setUsername(e.target.value)} 
+                  style={styles.input} 
+                  required 
+                />
+                <User size={18} style={{ position: 'absolute', right: '15px', top: '15px', color: '#64748b' }} />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <input
+                  type="text"
+                  placeholder="الاسم الرباعي (لن يظهر للمستخدمين الآخرين)"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  style={styles.input}
+                  required
+                />
+                <User size={18} style={{ position: 'absolute', right: '15px', top: '15px', color: '#64748b' }} />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <select
+                  value={governorate}
+                  onChange={e => { setGovernorate(e.target.value); setCenter(''); }}
+                  style={{ ...styles.input, appearance: 'none', cursor: 'pointer' }}
+                  required
+                >
+                  <option value="">المحافظة</option>
+                  {palestineData.map(g => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} style={{ position: 'absolute', left: '15px', top: '16px', color: '#64748b', pointerEvents: 'none' }} />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <input
+                  type="text"
+                  list="centerSuggestions"
+                  placeholder={governorate ? 'مثال: مركز شرطة المدينة' : 'اختر المحافظة أولاً'}
+                  value={center}
+                  onChange={e => setCenter(e.target.value)}
+                  style={{ ...styles.input, opacity: governorate ? 1 : 0.4 }}
+                  disabled={!governorate}
+                  required
+                />
+                <datalist id="centerSuggestions">
+                  {approvedCenters.map(s => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
+                <MapPin size={18} style={{ position: 'absolute', right: '15px', top: '15px', color: '#64748b' }} />
+              </div>
+            </>
           )}
 
           {authMode !== 'source' && (

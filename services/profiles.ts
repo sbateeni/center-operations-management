@@ -15,10 +15,11 @@ export const mapProfile = (row: any): UserProfile => {
   const mappedRole = ROLE_MIGRATION[row.role] || row.role;
   const rolePerms = ROLE_DEFAULT_PERMISSIONS[mappedRole as keyof typeof ROLE_DEFAULT_PERMISSIONS] || DEFAULT_PERMISSIONS;
   return {
-    id: row.id, username: row.username || 'Unknown', role: mappedRole,
+    id: row.id, username: row.username || 'Unknown', full_name: row.full_name, role: mappedRole,
     isApproved: row.is_approved === true, email: row.email,
     permissions: { ...rolePerms, ...(row.permissions || {}) },
-    governorate: row.governorate, center: row.center, last_seen: row.last_seen
+    governorate: row.governorate, center: row.center, last_seen: row.last_seen,
+    lat: row.lat, lng: row.lng
   };
 };
 

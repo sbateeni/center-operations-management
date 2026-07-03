@@ -14,6 +14,7 @@ export type UserRole = 'central_operations' | 'governorate_police' | 'center' | 
 export interface UserProfile {
   id: string;
   username: string;
+  full_name?: string | null;
   role: UserRole;
   isApproved: boolean;
   email?: string;
@@ -21,6 +22,8 @@ export interface UserProfile {
   governorate?: string | null;
   center?: string | null;
   last_seen?: number;
+  lat?: number;
+  lng?: number;
 }
 
 export type UnitStatus = 'patrol' | 'busy' | 'pursuit' | 'offline';

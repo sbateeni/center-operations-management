@@ -116,17 +116,27 @@ export function useMapGeofence(
       }).addTo(map);
     }
 
-    // Vertex markers
+    // Vertex markers — first point is larger (close target)
     drawingPoints.forEach((p, i) => {
+      const isFirst = i === 0;
       const marker = window.L.circleMarker([p.lat, p.lng], {
-        radius: 6, color: 'white', fillColor: color, fillOpacity: 1, weight: 2,
+        radius: isFirst ? 10 : 6, color: 'white', fillColor: isFirst ? '#f59e0b' : color, fillOpacity: 1, weight: isFirst ? 3 : 2,
       }).addTo(map);
-      marker.bindTooltip(`نقطة ${i + 1}`, {
+      marker.bindTooltip(isFirst && drawingPoints.length >= 3 ? 'اضغط للإغلاق' : `نقطة ${i + 1}`, {
         permanent: false, direction: 'top',
-        className: 'bg-slate-900 text-white px-1.5 py-0.5 rounded text-[9px] font-bold',
+        className: `bg-slate-900 text-white px-1.5 py-0.5 rounded text-[9px] font-bold ${isFirst ? 'border border-amber-400' : ''}`,
       });
       vertexMarkersRef.current.push(marker);
     });
+
+    // Closing hint line from last point back to first
+    if (drawingPoints.length >= 2) {
+      const closingLine = window.L.polyline([
+        [drawingPoints[drawingPoints.length - 1].lat, drawingPoints[drawingPoints.length - 1].lng],
+        [drawingPoints[0].lat, drawingPoints[0].lng],
+      ], { color, weight: 1.5, opacity: 0.25, dashArray: '4, 6' }).addTo(map);
+      vertexMarkersRef.current.push(closingLine);
+    }
 
     return () => {
       if (drawingLayerRef.current) map.removeLayer(drawingLayerRef.current);

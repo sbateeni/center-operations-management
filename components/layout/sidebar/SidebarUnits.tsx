@@ -8,6 +8,7 @@ interface SidebarUnitsProps {
   currentUserId?: string;
   userRole?: string | null;
   userGovernorate?: string | null;
+  onLocateUser?: (lat: number, lng: number) => void;
 }
 
 const STATUS_CONFIG = {
@@ -31,7 +32,7 @@ const ROLE_LABELS: Record<string, string> = {
   officer: 'ضابط', source: 'مصدر', banned: 'محظور',
 };
 
-export const SidebarUnits: React.FC<SidebarUnitsProps> = ({ onlineUsers, allProfiles, currentUserId, userRole, userGovernorate }) => {
+export const SidebarUnits: React.FC<SidebarUnitsProps> = ({ onlineUsers, allProfiles, currentUserId, userRole, userGovernorate, onLocateUser }) => {
   const [showAll, setShowAll] = useState(false);
   const onlineIds = new Set(onlineUsers.map((u) => u.id));
 
@@ -80,7 +81,15 @@ export const SidebarUnits: React.FC<SidebarUnitsProps> = ({ onlineUsers, allProf
       {visibleUsers.map((u) => {
         const ui = getUserUI(u);
         return (
-          <div key={u.id} className={`flex items-start justify-between px-3 py-2 rounded-lg border ${ui.bgColor} ${ui.borderColor}`}>
+          <button key={u.id} onClick={() => {
+            if (!onLocateUser) return;
+            const mapUser = onlineUsers.find(ou => ou.id === u.id);
+            if (mapUser && (mapUser.isOnline || u.id === currentUserId)) {
+              onLocateUser(mapUser.lat, mapUser.lng);
+            } else if (u.lat != null && u.lng != null) {
+              onLocateUser(u.lat, u.lng);
+            }
+          }} className={`w-full flex items-start justify-between px-3 py-2 rounded-lg border ${ui.bgColor} ${ui.borderColor} text-right cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.98]`}>
             <div className="flex items-start gap-2 w-full min-w-0">
               <div className={`w-2 h-2 shrink-0 rounded-full ${ui.dot} ${ui.pulse ? 'animate-pulse' : ''}`} />
               <div className="flex flex-col w-full min-w-0 gap-0.5">
@@ -99,7 +108,7 @@ export const SidebarUnits: React.FC<SidebarUnitsProps> = ({ onlineUsers, allProf
                 </div>
               </div>
             </div>
-          </div>
+          </button>
         );
       })}
       {totalHidden > 0 && (

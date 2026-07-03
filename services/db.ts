@@ -6,7 +6,8 @@ export { assignmentsApi } from './assignments';
 export { campaignsApi } from './campaigns';
 export { accessCodesApi } from './accessCodes';
 export { geofenceApi } from './geofence';
-
+export { approvedCentersApi } from './approvedCenters';
+ 
 import { notesDb } from './notes-db';
 import { profiles } from './profiles';
 import { logsApi } from './logs';
@@ -14,7 +15,8 @@ import { assignmentsApi } from './assignments';
 import { campaignsApi } from './campaigns';
 import { accessCodesApi } from './accessCodes';
 import { geofenceApi } from './geofence';
-
+import { approvedCentersApi } from './approvedCenters';
+ 
 export const db = {
   syncPendingNotes: notesDb.syncPending.bind(notesDb),
   verifyAccessCode: accessCodesApi.verify.bind(accessCodesApi),
@@ -47,4 +49,7 @@ export const db = {
   deleteGeofenceZone: geofenceApi.remove.bind(geofenceApi),
   getGeofenceEvents: geofenceApi.getEvents.bind(geofenceApi),
   logGeofenceEvent: geofenceApi.logEvent.bind(geofenceApi),
+  getApprovedCenters: approvedCentersApi.getAll.bind(approvedCentersApi),
+  getApprovedCentersByGovernorate: approvedCentersApi.getByGovernorate.bind(approvedCentersApi),
+  ensureApprovedCenter: approvedCentersApi.ensure.bind(approvedCentersApi),
 };
