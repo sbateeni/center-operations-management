@@ -107,7 +107,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
   const [message, setMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   
   const [email, setEmail] = useState(() => localStorage.getItem('ops_saved_email') || '');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(() => localStorage.getItem('ops_saved_password') || '');
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
   const [accessCode, setAccessCode] = useState('');
@@ -172,8 +172,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
         // إدارة ميزة "تذكرني"
         if (rememberMe) {
           localStorage.setItem('ops_saved_email', email);
+          localStorage.setItem('ops_saved_password', password);
         } else {
           localStorage.removeItem('ops_saved_email');
+          localStorage.removeItem('ops_saved_password');
         }
       }
     } catch (err: unknown) {
@@ -352,7 +354,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSourceLogin }) => {
               }}>
                 {rememberMe && <Check size={12} color="white" strokeWidth={4} />}
               </div>
-              <span style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 'bold' }}>حفظ بيانات الدخول (يتم حفظ البريد فقط على هذا الجهاز)</span>
+              <span style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 'bold' }}>حفظ بيانات الدخول على هذا الجهاز</span>
             </label>
           )}
 
